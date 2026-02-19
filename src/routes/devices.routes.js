@@ -22,9 +22,10 @@ router.post('/register-admin',
       );
 
       res.status(201).json({
-        message: 'Dispositivo registrado por admin',
+        message: 'Dispositivo registrado por admin ',
         id_dispositivo: result.insertId,
         api_key
+
       });
 
     } catch (error) {
