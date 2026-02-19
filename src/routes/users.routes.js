@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const verifyToken = require('../middlewares/auth.middleware');
 /**
  * @swagger
  * {
@@ -160,5 +161,11 @@ router.post('/login', async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor' });
   }
+});
+router.get('/profile', verifyToken, async (req, res) => {
+  res.json({
+    message: 'Ruta protegida',
+    user: req.user
+  });
 });
 module.exports = router;
