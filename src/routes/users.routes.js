@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
-
+const jwt = require('jsonwebtoken');
 /**
  * @swagger
  * {
@@ -141,9 +141,19 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
 
+    //  Generar token
+    const token = jwt.sign(
+      {
+        id_usuario: user.id_usuario,
+        email: user.email
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
     res.status(200).json({
       message: 'Login exitoso',
-      id_usuario: user.id_usuario
+      token
     });
 
   } catch (error) {
