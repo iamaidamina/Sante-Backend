@@ -2,5 +2,5 @@ CREATE DATABASE IF NOT EXISTS sante_db;
 USE sante_db;
 
 
-SELECT * FROM usuarios;
-#SHOW TABLES;
+#SELECT * FROM usuarios;
+SHOW TABLES;
