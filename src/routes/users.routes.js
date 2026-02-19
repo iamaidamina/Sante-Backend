@@ -3,6 +3,39 @@ const router = express.Router();
 const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
 
+/**
+ * @swagger
+ * {
+ * "/api/users/register": {
+ * "post": {
+ * "summary": "Registra un nuevo usuario",
+ * "requestBody": {
+ * "required": true,
+ * "content": {
+ * "application/json": {
+ * "schema": {
+ * "type": "object",
+ * "properties": {
+ * "nombres": { "type": "string" },
+ * "apellidos": { "type": "string" },
+ * "fecha_nacimiento": { "type": "string", "format": "date" },
+ * "username": { "type": "string" },
+ * "email": { "type": "string" },
+ * "password": { "type": "string" }
+ * }
+ * }
+ * }
+ * }
+ * },
+ * "responses": {
+ * "201": { "description": "Usuario creado" },
+ * "400": { "description": "Error de validación" },
+ * "500": { "description": "Error de servidor" }
+ * }
+ * }
+ * }
+ * }
+ */
 router.post('/register', async (req, res) => {
   try {
     const {
