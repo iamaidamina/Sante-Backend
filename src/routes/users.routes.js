@@ -87,4 +87,68 @@ router.post('/register', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * {
+ *   "/api/users/login": {
+ *     "post": {
+ *       "summary": "Login de usuario",
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "properties": {
+ *                 "email": { "type": "string" },
+ *                 "password": { "type": "string" }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "200": { "description": "Login exitoso" },
+ *         "400": { "description": "Credenciales inválidas" },
+ *         "500": { "description": "Error de servidor" }
+ *       }
+ *     }
+ *   }
+ * }
+ */
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Faltan datos obligatorios' });
+    }
+
+    const [rows] = await pool.query(
+      'SELECT * FROM usuarios WHERE email = ?',
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.status(400).json({ message: 'Credenciales inválidas' });
+    }
+
+    const user = rows[0];
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Credenciales inválidas' });
+    }
+
+    res.status(200).json({
+      message: 'Login exitoso',
+      id_usuario: user.id_usuario
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+});
 module.exports = router;
