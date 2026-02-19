@@ -1,6 +1,4 @@
-CREATE DATABASE IF NOT EXISTS sante_db;
-USE sante_db;
-
-
-#SELECT * FROM usuarios;
+USE railway;
 SHOW TABLES;
+
+
