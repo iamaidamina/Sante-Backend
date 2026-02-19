@@ -6,6 +6,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 //-----------------------------------------
 
 const usersRoutes = require('./routes/users.routes');
+const devicesRoutes = require('./routes/devices.routes');
 
 const app = express();
 
@@ -40,5 +41,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Rutas
 app.use('/api/users', usersRoutes);
+app.use('/api/devices', devicesRoutes);
 
 module.exports = app;
