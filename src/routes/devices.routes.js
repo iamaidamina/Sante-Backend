@@ -1,6 +1,9 @@
-const verifyAdmin = require('../middlewares/admin.middleware');
-const crypto = require('crypto');
+const express = require('express');
+const router = express.Router();
 const pool = require('../db/connection');
+const crypto = require('crypto');
+const verifyToken = require('../middlewares/auth.middleware');
+const verifyAdmin = require('../middlewares/admin.middleware');
 
 router.post('/register-admin',
   verifyToken,
@@ -22,10 +25,9 @@ router.post('/register-admin',
       );
 
       res.status(201).json({
-        message: 'Dispositivo registrado por admin ',
+        message: 'Dispositivo registrado por admin',
         id_dispositivo: result.insertId,
         api_key
-
       });
 
     } catch (error) {
@@ -33,3 +35,5 @@ router.post('/register-admin',
       res.status(500).json({ message: 'Error en el servidor' });
     }
 });
+
+module.exports = router;
