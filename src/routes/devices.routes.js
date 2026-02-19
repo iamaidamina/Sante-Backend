@@ -35,5 +35,53 @@ router.post('/register-admin',
       res.status(500).json({ message: 'Error en el servidor' });
     }
 });
+router.post('/uv', async (req, res) => {
+  try {
+    const { api_key, valor_uv } = req.body;
 
+    if (!api_key || valor_uv === undefined) {
+      return res.status(400).json({ message: 'Datos incompletos' });
+    }
+
+    // Buscar dispositivo
+    const [devices] = await pool.query(
+      'SELECT id_dispositivo FROM dispositivos WHERE api_key = ? AND estado = "activo"',
+      [api_key]
+    );
+
+    if (devices.length === 0) {
+      return res.status(401).json({ message: 'API key inválida' });
+    }
+
+    const id_dispositivo = devices[0].id_dispositivo;
+
+    // Calcular nivel automáticamente
+    const calcularNivel = (uv) => {
+      if (uv <= 2) return 'bajo';
+      if (uv <= 5) return 'moderado';
+      if (uv <= 7) return 'alto';
+      if (uv <= 10) return 'muy_alto';
+      return 'extremo';
+    };
+
+    const nivel_riesgo = calcularNivel(valor_uv);
+
+    // Guardar en base de datos
+    await pool.query(
+      `INSERT INTO registros_uv 
+       (id_dispositivo, valor_uv, nivel_riesgo)
+       VALUES (?, ?, ?)`,
+      [id_dispositivo, valor_uv, nivel_riesgo]
+    );
+
+    res.json({
+      message: 'Registro UV guardado',
+      nivel_riesgo
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+});
 module.exports = router;
