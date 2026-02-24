@@ -8,7 +8,7 @@ router.get("/", verifyToken, async (req, res) => {
         const userId = req.user.id_usuario;
 
         const [rows] = await pool.query(
-            "SELECT * FROM medications WHERE id_usuario = ?",
+            "SELECT * FROM medicamentos WHERE id_usuario = ?",
             [userId]
         );
 
