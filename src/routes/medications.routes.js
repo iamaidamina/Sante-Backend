@@ -1,25 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const connection = require("../db/connection");
-const authMiddleware = require("../middlewares/auth.middleware");
+const pool = require("../db/connection");
+const verifyToken = require("../middlewares/auth.middleware");
 
-// GET - traer medicamentos del usuario logueado
-router.get("/", authMiddleware, (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
+    try {
+        const userId = req.user.id_usuario;
 
-    const userId = req.user.id_usuario; // 👈 viene del token
+        const [rows] = await pool.query(
+            "SELECT * FROM medications WHERE id_usuario = ?",
+            [userId]
+        );
 
-    const query = "SELECT * FROM medicamentos WHERE id_usuario = ?";
+        res.json(rows);
 
-    connection.query(query, [userId], (err, results) => {
-        if (err) {
-            console.error("Error al obtener medicamentos:", err);
-            return res.status(500).json({
-                message: "Error al obtener medicamentos"
-            });
-        }
-
-        res.status(200).json(results);
-    });
+    } catch (error) {
+        console.error("Error fetching medications:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
 
 module.exports = router;
