@@ -27,12 +27,9 @@ router.post("/", verifyToken, async (req, res) => {
             nombre,
             descripcion,
             id_frecuencia,
-            id_almacenamiento,
-            foto_path,
-            formula_path
+            id_almacenamiento
         } = req.body;
 
-        // Validación mínima
         if (!nombre) {
             return res.status(400).json({
                 message: "Name is required"
@@ -41,22 +38,21 @@ router.post("/", verifyToken, async (req, res) => {
 
         const [result] = await pool.query(
             `INSERT INTO medicamentos
-            (id_usuario, nombre, descripcion, id_frecuencia, id_almacenamiento, foto_path, formula_path)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            (id_usuario, nombre, descripcion, id_frecuencia, id_almacenamiento)
+            VALUES (?, ?, ?, ?, ?)`,
             [
                 userId,
                 nombre,
                 descripcion || null,
                 id_frecuencia || null,
-                id_almacenamiento || null,
-                foto_path || null,
-                formula_path || null
+                id_almacenamiento || null
             ]
         );
 
         res.status(201).json({
             message: "Medication created successfully",
-            medicationId: result.insertId
+            medicationId: result.insertId,
+            estado: "activo" // sabemos que queda activo por defecto
         });
 
     } catch (error) {
