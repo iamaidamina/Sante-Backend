@@ -3,11 +3,11 @@ CREATE TABLE usuarios (
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     fecha_nacimiento DATE,
-    username VARCHAR(50) NOT NULL UNIQUE,
+    username VARCHAR(100) NOT NULL UNIQUE,
     email VARCHAR(150) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado ENUM('activo','inactivo') DEFAULT 'activo'
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('usuario','admin') DEFAULT 'usuario',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE frecuencias (
     id_frecuencia INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,24 +24,16 @@ CREATE TABLE especialidades (
     id_especialidad INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL
 );
-CREATE TABLE medicamentos (
-    id_medicamento INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    nombre VARCHAR(150) NOT NULL,
-    descripcion TEXT,
-    id_frecuencia INT,
-    id_almacenamiento INT,
-    foto_path VARCHAR(255),
-    formula_path VARCHAR(255),
-    estado ENUM('activo','inactivo') DEFAULT 'activo',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-        ON DELETE CASCADE,
-    FOREIGN KEY (id_frecuencia) REFERENCES frecuencias(id_frecuencia)
-        ON DELETE SET NULL,
-    FOREIGN KEY (id_almacenamiento) REFERENCES almacenamientos(id_almacenamiento)
-        ON DELETE SET NULL
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE,
+    username VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    rol ENUM('usuario','admin') DEFAULT 'usuario',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE citas (
     id_cita INT AUTO_INCREMENT PRIMARY KEY,

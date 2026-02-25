@@ -27,9 +27,10 @@ router.post("/", verifyToken, async (req, res) => {
             nombre,
             descripcion,
             id_frecuencia,
-            id_almacenamiento
+            almacenamiento
         } = req.body;
 
+        // Validación mínima
         if (!nombre) {
             return res.status(400).json({
                 message: "Name is required"
@@ -38,14 +39,14 @@ router.post("/", verifyToken, async (req, res) => {
 
         const [result] = await pool.query(
             `INSERT INTO medicamentos
-            (id_usuario, nombre, descripcion, id_frecuencia, id_almacenamiento)
-            VALUES (?, ?, ?, ?, ?)`,
+             (id_usuario, nombre, descripcion, id_frecuencia, almacenamiento)
+             VALUES (?, ?, ?, ?, ?)`,
             [
                 userId,
                 nombre,
                 descripcion || null,
                 id_frecuencia || null,
-                id_almacenamiento || null
+                almacenamiento || null
             ]
         );
 
@@ -56,7 +57,10 @@ router.post("/", verifyToken, async (req, res) => {
 
     } catch (error) {
         console.error("Error creating medication:", error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message
+        });
     }
 });
 module.exports = router;
