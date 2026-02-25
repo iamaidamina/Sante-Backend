@@ -51,8 +51,7 @@ router.post("/", verifyToken, async (req, res) => {
 
         res.status(201).json({
             message: "Medication created successfully",
-            medicationId: result.insertId,
-            estado: "activo" // sabemos que queda activo por defecto
+            medicationId: result.insertId
         });
 
     } catch (error) {
