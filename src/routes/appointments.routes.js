@@ -9,7 +9,7 @@ const pool = require("../db/connection");
  * /api/appointments:
  *   post:
  *     summary: Create a new appointment
- *     tags: [Medicamentos]
+ *     tags: [Appointments]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -84,7 +84,7 @@ router.post("/", verifyToken, async (req, res) => {
  * /api/appointments:
  *   get:
  *     summary: Get all appointments for logged user
- *     tags: [Medicamentos]
+ *     tags: [Appointments]
  *     security:
  *       - bearerAuth: []
  *     responses:
