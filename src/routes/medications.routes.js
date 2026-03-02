@@ -38,6 +38,39 @@ router.get("/", verifyToken, async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+/**
+ * @swagger
+ * {
+ *   "/api/medications": {
+ *     "post": {
+ *       "summary": "Crear un nuevo medicamento",
+ *       "security": [{ "bearerAuth": [] }],
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "properties": {
+ *                 "nombre": { "type": "string" },
+ *                 "descripcion": { "type": "string" },
+ *                 "id_frecuencia": { "type": "integer" },
+ *                 "almacenamiento": { "type": "string" }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": { "description": "Medicamento creado correctamente" },
+ *         "400": { "description": "Datos inválidos" },
+ *         "401": { "description": "Token requerido" },
+ *         "500": { "description": "Error de servidor" }
+ *       }
+ *     }
+ *   }
+ * }
+ */
 router.post("/", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id_usuario;
