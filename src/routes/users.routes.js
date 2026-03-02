@@ -9,6 +9,7 @@ const verifyToken = require('../middlewares/auth.middleware');
  * {
  * "/api/users/register": {
  * "post": {
+ * "tags": ["Users"],
  * "summary": "Registra un nuevo usuario",
  * "requestBody": {
  * "required": true,
@@ -93,6 +94,7 @@ router.post('/register', async (req, res) => {
  * {
  *   "/api/users/login": {
  *     "post": {
+ *     "tags": ["Users"],
  *       "summary": "Login de usuario",
  *       "requestBody": {
  *         "required": true,

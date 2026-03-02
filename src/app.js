@@ -16,38 +16,32 @@ const app = express();
 // --- Swagger Setup ---
 const swaggerOptions = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'Sante API Documentation',
-      version: '1.0.0',
-      description: 'Interactive list of API endpoints for the Sante Backend',
+      title: "Sante API",
+      version: "1.0.0",
     },
-    servers: [
+    tags: [
       {
-        url: `http://localhost:${process.env.PORT || 3000}`,
+        name: "Users",
+        description: "User authentication and management"
       },
-    ],
-
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT"
-        }
-      }
-    },
-
-    security: [
       {
-        bearerAuth: []
+        name: "Medications",
+        description: "Medication management"
+      },
+      {
+        name: "Appointments",
+        description: "Appointment management"
+      },
+      {
+        name: "Devices",
+        description: "IoT device management"
       }
     ]
   },
-
-  apis: ['./src/routes/*.js'],
+  apis: ["./src/routes/*.js"]
 };
-
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
 // Middlewares

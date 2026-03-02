@@ -8,12 +8,11 @@ const verifyToken = require("../middlewares/auth.middleware");
  * {
  *   "/api/medications": {
  *     "get": {
+ *       "tags": ["Medications"],
  *       "summary": "Obtener medicamentos del usuario autenticado",
  *       "security": [{ "bearerAuth": [] }],
  *       "responses": {
- *         "200": {
- *           "description": "Lista de medicamentos"
- *         },
+ *         "200": { "description": "Lista de medicamentos" },
  *         "401": { "description": "Token requerido" },
  *         "403": { "description": "Token inválido" },
  *         "500": { "description": "Error de servidor" }
@@ -43,6 +42,7 @@ router.get("/", verifyToken, async (req, res) => {
  * {
  *   "/api/medications": {
  *     "post": {
+ *       "tags": ["Medications"],
  *       "summary": "Crear un nuevo medicamento",
  *       "security": [{ "bearerAuth": [] }],
  *       "requestBody": {
@@ -120,6 +120,7 @@ router.post("/", verifyToken, async (req, res) => {
  * {
  *   "/api/medications/{id}": {
  *     "put": {
+ *       "tags": ["Medications"],
  *       "summary": "Editar medicamento",
  *       "security": [{ "bearerAuth": [] }],
  *       "parameters": [
@@ -219,7 +220,7 @@ router.put("/:id", verifyToken, async (req, res) => {
  * {
  *   "/api/medications/{id}": {
  *     "delete": {
- *       "summary": "Eliminar medicamento",
+ *       "tags": ["Medications"],
  *       "security": [{ "bearerAuth": [] }],
  *       "parameters": [
  *         {
