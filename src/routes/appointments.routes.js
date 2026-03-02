@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const verifyToken = require("../middleware/auth");
-const appointmentsController = require("../controllers/appointments.controller");
-const pool = require("../config/db"); // o donde tengas tu conexión
+const verifyToken = require("../middlewares/auth.middleware");
+const pool = require("../config/db"); 
 
 // CREATE appointment
 /**
