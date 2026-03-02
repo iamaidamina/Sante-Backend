@@ -40,6 +40,7 @@ CREATE TABLE citas (
     id_usuario INT NOT NULL,
     nombre_medico VARCHAR(150) NOT NULL,
     id_especialidad INT,
+	descripcion TEXT,
     tipo VARCHAR(100),
     lugar VARCHAR(150),
     fecha_hora DATETIME,

@@ -8,6 +8,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const usersRoutes = require('./routes/users.routes');
 const devicesRoutes = require('./routes/devices.routes');
 const medicationsRoutes = require("./routes/medications.routes");
+const appointmentsRoutes = require("./routes/appointments.routes");
 
 const app = express();
 
@@ -60,5 +61,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/users', usersRoutes);
 app.use('/api/devices', devicesRoutes);
 app.use("/api/medications", medicationsRoutes);
+app.use("/api/appointments", appointmentsRoutes);
 
 module.exports = app;
