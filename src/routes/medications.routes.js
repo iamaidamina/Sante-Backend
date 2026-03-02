@@ -115,6 +115,48 @@ router.post("/", verifyToken, async (req, res) => {
         });
     }
 });
+/**
+ * @swagger
+ * {
+ *   "/api/medications/{id}": {
+ *     "put": {
+ *       "summary": "Editar medicamento",
+ *       "security": [{ "bearerAuth": [] }],
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": { "type": "integer" }
+ *         }
+ *       ],
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "properties": {
+ *                 "nombre": { "type": "string" },
+ *                 "descripcion": { "type": "string" },
+ *                 "id_frecuencia": { "type": "integer" },
+ *                 "almacenamiento": { "type": "string" },
+ *                 "estado": { "type": "string", "enum": ["activo","inactivo"] }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "200": { "description": "Medicamento actualizado" },
+ *         "404": { "description": "No encontrado" },
+ *         "401": { "description": "No autorizado" },
+ *         "500": { "description": "Error de servidor" }
+ *       }
+ *     }
+ *   }
+ * }
+ */
 router.put("/:id", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id_usuario;

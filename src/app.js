@@ -27,8 +27,18 @@ const swaggerOptions = {
             },
         ],
     },
+    components: {
+        securitySchemes: {
+            bearerAuth: {
+                type: "http",
+                scheme: "bearer",
+                bearerFormat: "JWT"
+            }
+        }
+    },
+    security: [{ bearerAuth: [] }],
     // IMPORTANT: Point this to the folder where your .routes.js files are
-    apis: ['./src/routes/*.js'], 
+    apis: ['./src/routes/*.js'],
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
