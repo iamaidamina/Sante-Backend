@@ -6,10 +6,10 @@ const pool = require("../db/connection");
 // CREATE appointment
 /**
  * @swagger
- * /api/Medicamentos:
+ * /api/appointments:
  *   post:
  *     summary: Create a new appointment
- *     tags: [Appointments]
+ *     tags: [Medicamentos]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -81,10 +81,10 @@ router.post("/", verifyToken, async (req, res) => {
 // GET all appointments (logged user)
 /**
  * @swagger
- * /api/Medicamentos:
+ * /api/appointments:
  *   get:
  *     summary: Get all appointments for logged user
- *     tags: [Appointments]
+ *     tags: [Medicamentos]
  *     security:
  *       - bearerAuth: []
  *     responses:
