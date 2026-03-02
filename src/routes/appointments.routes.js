@@ -6,7 +6,7 @@ const pool = require("../db/connection");
 // CREATE appointment
 /**
  * @swagger
- * /api/appointments:
+ * /api/Medicamentos:
  *   post:
  *     summary: Create a new appointment
  *     tags: [Appointments]
@@ -81,7 +81,7 @@ router.post("/", verifyToken, async (req, res) => {
 // GET all appointments (logged user)
 /**
  * @swagger
- * /api/appointments:
+ * /api/Medicamentos:
  *   get:
  *     summary: Get all appointments for logged user
  *     tags: [Appointments]
