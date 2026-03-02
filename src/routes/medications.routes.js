@@ -3,6 +3,25 @@ const router = express.Router();
 const pool = require("../db/connection");
 const verifyToken = require("../middlewares/auth.middleware");
 
+/**
+ * @swagger
+ * {
+ *   "/api/medications": {
+ *     "get": {
+ *       "summary": "Obtener medicamentos del usuario autenticado",
+ *       "security": [{ "bearerAuth": [] }],
+ *       "responses": {
+ *         "200": {
+ *           "description": "Lista de medicamentos"
+ *         },
+ *         "401": { "description": "Token requerido" },
+ *         "403": { "description": "Token inválido" },
+ *         "500": { "description": "Error de servidor" }
+ *       }
+ *     }
+ *   }
+ * }
+ */
 router.get("/", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id_usuario;
