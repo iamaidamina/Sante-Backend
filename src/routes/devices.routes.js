@@ -5,6 +5,40 @@ const crypto = require('crypto');
 const verifyToken = require('../middlewares/auth.middleware');
 const verifyAdmin = require('../middlewares/admin.middleware');
 
+/**
+ * @swagger
+ * /api/devices/register-admin:
+ *   post:
+ *     summary: Register a new device (Admin only)
+ *     tags: [Devices]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre
+ *               - id_usuario
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 example: Sensor UV Torre 3
+ *               id_usuario:
+ *                 type: integer
+ *                 example: 5
+ *     responses:
+ *       201:
+ *         description: Device registered successfully
+ *       400:
+ *         description: Incomplete data
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/register-admin',
   verifyToken,
   verifyAdmin,
@@ -35,6 +69,38 @@ router.post('/register-admin',
       res.status(500).json({ message: 'Error en el servidor' });
     }
 });
+/**
+ * @swagger
+ * /api/devices/uv:
+ *   post:
+ *     summary: Receive UV sensor data
+ *     tags: [Devices]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - api_key
+ *               - valor_uv
+ *             properties:
+ *               api_key:
+ *                 type: string
+ *                 example: a8f4c6e3b9f2...
+ *               valor_uv:
+ *                 type: number
+ *                 example: 7.5
+ *     responses:
+ *       200:
+ *         description: UV record stored successfully
+ *       400:
+ *         description: Incomplete data
+ *       401:
+ *         description: Invalid API key
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/uv', async (req, res) => {
   try {
     const { api_key, valor_uv } = req.body;
