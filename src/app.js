@@ -14,31 +14,37 @@ const app = express();
 
 // --- Swagger Setup ---
 const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'Sante API Documentation',
-            version: '1.0.0',
-            description: 'Interactive list of API endpoints for the Sante Backend',
-        },
-        servers: [
-            {
-                url: `http://localhost:${process.env.PORT || 3000}`,
-            },
-        ],
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Sante API Documentation',
+      version: '1.0.0',
+      description: 'Interactive list of API endpoints for the Sante Backend',
     },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 3000}`,
+      },
+    ],
+
     components: {
-        securitySchemes: {
-            bearerAuth: {
-                type: "http",
-                scheme: "bearer",
-                bearerFormat: "JWT"
-            }
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT"
         }
+      }
     },
-    security: [{ bearerAuth: [] }],
-    // IMPORTANT: Point this to the folder where your .routes.js files are
-    apis: ['./src/routes/*.js'],
+
+    security: [
+      {
+        bearerAuth: []
+      }
+    ]
+  },
+
+  apis: ['./src/routes/*.js'],
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);

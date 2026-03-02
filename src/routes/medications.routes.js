@@ -214,6 +214,31 @@ router.put("/:id", verifyToken, async (req, res) => {
         });
     }
 });
+/**
+ * @swagger
+ * {
+ *   "/api/medications/{id}": {
+ *     "delete": {
+ *       "summary": "Eliminar medicamento",
+ *       "security": [{ "bearerAuth": [] }],
+ *       "parameters": [
+ *         {
+ *           "name": "id",
+ *           "in": "path",
+ *           "required": true,
+ *           "schema": { "type": "integer" }
+ *         }
+ *       ],
+ *       "responses": {
+ *         "200": { "description": "Medicamento eliminado" },
+ *         "404": { "description": "No encontrado" },
+ *         "401": { "description": "No autorizado" },
+ *         "500": { "description": "Error de servidor" }
+ *       }
+ *     }
+ *   }
+ * }
+ */
 router.delete("/:id", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id_usuario;
