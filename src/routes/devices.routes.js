@@ -111,7 +111,7 @@ router.post('/uv', async (req, res) => {
 
     // Buscar dispositivo
     const [devices] = await pool.query(
-      'SELECT id_dispositivo FROM dispositivos WHERE api_key = ? AND estado = "activo"',
+      'SELECT id_dispositivo, id_usuario FROM dispositivos WHERE api_key = ? AND estado = "activo"',
       [api_key]
     );
 
@@ -120,6 +120,7 @@ router.post('/uv', async (req, res) => {
     }
 
     const id_dispositivo = devices[0].id_dispositivo;
+    const id_usuario = devices[0].id_usuario;
 
     // Calcular nivel automáticamente
     const calcularNivel = (uv) => {
@@ -139,6 +140,28 @@ router.post('/uv', async (req, res) => {
        VALUES (?, ?, ?)`,
       [id_dispositivo, valor_uv, nivel_riesgo]
     );
+    const io = req.app.get("io");
+
+    if (
+      io &&
+      (nivel_riesgo === "alto" || nivel_riesgo === "muy_alto" || nivel_riesgo === "extremo")
+    ) {
+      // Opcion actual (sin auth en frontend): envia a todos los clientes conectados.
+      io.emit("alerta_uv", {
+        mensaje: "Radiacion UV alta. Usa bloqueador solar.",
+        valor: valor_uv,
+        nivel_riesgo,
+        id_dispositivo
+      });
+
+      // Opcion futura (cuando frontend tenga auth + rooms por usuario):
+      // io.to(`user_${id_usuario}`).emit("alerta_uv", {
+      //   mensaje: "Radiacion UV alta. Usa bloqueador solar.",
+      //   valor: valor_uv,
+      //   nivel_riesgo,
+      //   id_dispositivo
+      // });
+    }
 
     res.json({
       message: 'Registro UV guardado',
