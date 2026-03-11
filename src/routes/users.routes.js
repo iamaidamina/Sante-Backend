@@ -144,7 +144,6 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
 
-    //  Generar token
     const token = jwt.sign(
       {
         id_usuario: user.id_usuario,
@@ -155,21 +154,19 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-
     res.status(200).json({
       message: 'Login exitoso',
-      token
+      token,
+      user: {
+        id_usuario: user.id_usuario,
+        email: user.email,
+        rol: user.rol
+      }
     });
 
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor' });
   }
-});
-router.get('/profile', verifyToken, async (req, res) => {
-  res.json({
-    message: 'Ruta protegida',
-    user: req.user
-  });
 });
 module.exports = router;
