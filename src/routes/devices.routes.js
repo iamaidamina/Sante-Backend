@@ -147,20 +147,20 @@ router.post('/uv', async (req, res) => {
       (nivel_riesgo === "alto" || nivel_riesgo === "muy_alto" || nivel_riesgo === "extremo")
     ) {
       // Opcion actual (sin auth en frontend): envia a todos los clientes conectados.
-      io.emit("alerta_uv", {
+      //io.emit("alerta_uv", {
+      //  mensaje: "Radiacion UV alta. Usa bloqueador solar.",
+      //  valor: valor_uv,
+      //  nivel_riesgo,
+      //  id_dispositivo
+      //});
+
+      // Opcion futura (cuando frontend tenga auth + rooms por usuario):
+        io.to(`user_${id_usuario}`).emit("alerta_uv", {
         mensaje: "Radiacion UV alta. Usa bloqueador solar.",
         valor: valor_uv,
         nivel_riesgo,
         id_dispositivo
-      });
-
-      // Opcion futura (cuando frontend tenga auth + rooms por usuario):
-      // io.to(`user_${id_usuario}`).emit("alerta_uv", {
-      //   mensaje: "Radiacion UV alta. Usa bloqueador solar.",
-      //   valor: valor_uv,
-      //   nivel_riesgo,
-      //   id_dispositivo
-      // });
+        });
     }
 
     res.json({
