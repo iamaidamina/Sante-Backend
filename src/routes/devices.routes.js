@@ -68,7 +68,7 @@ router.post('/register-admin',
       console.error(error);
       res.status(500).json({ message: 'Error en el servidor' });
     }
-});
+  });
 /**
  * @swagger
  * /api/devices/uv:
@@ -146,21 +146,7 @@ router.post('/uv', async (req, res) => {
       io &&
       (nivel_riesgo === "alto" || nivel_riesgo === "muy_alto" || nivel_riesgo === "extremo")
     ) {
-      // Opcion actual (sin auth en frontend): envia a todos los clientes conectados.
-      //io.emit("alerta_uv", {
-      //  mensaje: "Radiacion UV alta. Usa bloqueador solar.",
-      //  valor: valor_uv,
-      //  nivel_riesgo,
-      //  id_dispositivo
-      //});
-
-      // Opcion futura (cuando frontend tenga auth + rooms por usuario):
-        io.to(`user_${id_usuario}`).emit("alerta_uv", {
-        mensaje: "Radiacion UV alta. Usa bloqueador solar.",
-        valor: valor_uv,
-        nivel_riesgo,
-        id_dispositivo
-        });
+      io.to(`user_${id_usuario}`).emit("uv_alert", { nivel_riesgo, valor_uv });
     }
 
     res.json({
