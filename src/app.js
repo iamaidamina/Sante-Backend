@@ -57,4 +57,5 @@ app.use('/api/devices', devicesRoutes);
 app.use("/api/medications", medicationsRoutes);
 app.use("/api/appointments", appointmentsRoutes);
 
+
 module.exports = app;
