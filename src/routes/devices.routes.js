@@ -146,7 +146,16 @@ router.post('/uv', async (req, res) => {
       io &&
       (nivel_riesgo === "alto" || nivel_riesgo === "muy_alto" || nivel_riesgo === "extremo")
     ) {
-      io.to(`user_${id_usuario}`).emit("uv_alert", { nivel_riesgo, valor_uv });
+      io.to(`user_${id_usuario}`).emit("uv_alert", {
+        mensaje: "Radiación UV alta. Usa bloqueador solar.",
+        valor_uv,
+        nivel_riesgo
+      });
+    }
+
+    if (io && (nivel_riesgo === "alto" || nivel_riesgo === "muy_alto")) {
+
+
     }
 
     res.json({
