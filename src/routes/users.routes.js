@@ -182,4 +182,28 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor' });
   }
 });
+router.post('/logout', verifyToken, async (req, res) => {
+  try {
+
+    const { id_sesion } = req.body;
+
+    await pool.query(
+      `UPDATE sesiones_usuario
+       SET hora_salida = NOW(),
+           tiempo_estadia_segundos = TIMESTAMPDIFF(SECOND, hora_ingreso, NOW())
+       WHERE id_sesion = ?`,
+      [id_sesion]
+    );
+
+    res.json({
+      message: "Sesión cerrada correctamente"
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error cerrando sesión"
+    });
+  }
+});
 module.exports = router;

@@ -24,17 +24,6 @@ CREATE TABLE especialidades (
     id_especialidad INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL
 );
-CREATE TABLE usuarios (
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    fecha_nacimiento DATE,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    rol ENUM('usuario','admin') DEFAULT 'usuario',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 CREATE TABLE citas (
     id_cita INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
