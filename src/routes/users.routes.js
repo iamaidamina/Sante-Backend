@@ -153,23 +153,23 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    // Registrar sesión
-    const ip = req.ip;
-    const dispositivo = req.headers['user-agent'];
+    // Registrar sesión queda pendiente asegurar bien el registro de login
+    //const ip = req.ip;
+    //const dispositivo = req.headers['user-agent'];
 
-    const [sesion] = await pool.query(
-      `INSERT INTO sesiones_usuario 
-       (id_usuario, ip_usuario, dispositivo)
-       VALUES (?, ?, ?)`,
-      [user.id_usuario, ip, dispositivo]
-    );
+    //const [sesion] = await pool.query(
+    //  `INSERT INTO sesiones_usuario 
+    //   (id_usuario, ip_usuario, dispositivo)
+    //   VALUES (?, ?, ?)`,
+    //  [user.id_usuario, ip, dispositivo]
+    //);
 
-    const id_sesion = sesion.insertId;
+    //const id_sesion = sesion.insertId;
 
     res.status(200).json({
       message: 'Login exitoso',
       token,
-      id_sesion,
+      //id_sesion,
       user: {
         id_usuario: user.id_usuario,
         email: user.email,
