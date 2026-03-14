@@ -96,7 +96,7 @@ router.post("/", verifyToken, async (req, res) => {
 router.get("/", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id_usuario;
-        /*Este es el anterior y deberia funcionar asi
+        
         const [rows] = await pool.query(
             `SELECT c.*, e.nombre_especialidad
              FROM citas c
@@ -106,11 +106,13 @@ router.get("/", verifyToken, async (req, res) => {
              ORDER BY c.fecha_hora DESC`,
             [userId]
         );
-        */
+       
+       /*Este es el anterior y deberia funcionar asi
        const [rows] = await pool.query(
             "SELECT * FROM citas WHERE id_usuario = ?",
             [userId]
         );
+         */
         res.json(rows);
 
     } catch (error) {
