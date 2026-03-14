@@ -107,22 +107,12 @@ router.get("/", verifyToken, async (req, res) => {
             [userId]
         );
         */
-       const [rows] = await pool.query(
-            `SELECT c.*, e.nombre_especialidad
-             FROM citas c
-             LEFT JOIN especialidades e 
-             ON c.id_especialidad = e.id_especialidad
-             WHERE c.id_usuario = ?
-             ORDER BY c.fecha_hora DESC`,
-            [userId]
-        );
        
-       /*Este es el anterior y deberia funcionar asi
        const [rows] = await pool.query(
             "SELECT * FROM citas WHERE id_usuario = ?",
             [userId]
         );
-         */
+
         res.json(rows);
 
     } catch (error) {
