@@ -57,7 +57,7 @@ router.post("/", verifyToken, async (req, res) => {
         }
 
         const [result] = await pool.query(
-            `INSERT INTO citas 
+            `INSERT INTO tests 
             (id_usuario, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora)
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [userId, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora]
@@ -172,7 +172,7 @@ router.put("/:id", verifyToken, async (req, res) => {
         } = req.body;
 
         await pool.query(
-            `UPDATE citas 
+            `UPDATE tests 
              SET nombre_medico = ?, 
                  nombre_examen = ?, 
                  descripcion = ?, 
