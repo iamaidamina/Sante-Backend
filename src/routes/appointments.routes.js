@@ -223,7 +223,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id_usuario;
         const { id } = req.params;
-
+        /*
         await pool.query(
             `UPDATE citas 
              SET estado = 'inactivo'
@@ -232,7 +232,23 @@ router.delete("/:id", verifyToken, async (req, res) => {
         );
 
         res.json({ message: "Appointment deleted successfully" });
+        */
+        const [result] = await pool.query(
+            `DELETE FROM citas
+             WHERE id_cita= ?
+             AND id_usuario = ?`,
+            [id, userId]
+        );
 
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                message: "Appointment not found or not authorized"
+            });
+        }
+
+        res.status(200).json({
+            message: "Appoinment deleted successfully"
+        });
     } catch (error) {
         console.error("Error deleting appointment:", error);
         res.status(500).json({ message: "Internal server error" });
