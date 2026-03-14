@@ -96,13 +96,23 @@ router.post("/", verifyToken, async (req, res) => {
 router.get("/", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id_usuario;
-        
+        /*
         const [rows] = await pool.query(
             `SELECT c.*, e.nombre_especialidad
              FROM citas c
              LEFT JOIN especialidades e 
              ON c.id_especialidad = e.id_especialidad
              WHERE c.id_usuario = ? AND c.estado = 'activo'
+             ORDER BY c.fecha_hora DESC`,
+            [userId]
+        );
+        */
+       const [rows] = await pool.query(
+            `SELECT c.*, e.nombre_especialidad
+             FROM citas c
+             LEFT JOIN especialidades e 
+             ON c.id_especialidad = e.id_especialidad
+             WHERE c.id_usuario = ?
              ORDER BY c.fecha_hora DESC`,
             [userId]
         );
