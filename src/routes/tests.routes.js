@@ -74,41 +74,6 @@ router.post("/", verifyToken, async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /api/tests/fix-table:
- *   post:
- *     summary: Create a new table
- * 
- * */
-router.post('/fix-table', async (req, res) => {
-    try {
-        // Borra tabla vieja
-        await pool.query('DROP TABLE IF EXISTS tests');
-        
-        // Crea PERFECTA
-        await pool.query(`
-            CREATE TABLE tests (
-    id_test INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    nombre_medico VARCHAR(150) NOT NULL,
-    nombre_examen VARCHAR(150) NOT NULL,      
-    descripcion VARCHAR(150),
-    lugar VARCHAR(150),
-    fecha_hora DATETIME,                      
-    estado ENUM('activo','inactivo') DEFAULT 'activo',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
-)
-        `);
-        res.json({ message: "✅ Tabla tests FIXEA" });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-
-
 // GET all tests (logged user)
 /**
  * @swagger
