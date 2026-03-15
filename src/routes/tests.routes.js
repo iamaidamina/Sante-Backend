@@ -74,7 +74,13 @@ router.post("/", verifyToken, async (req, res) => {
     }
 });
 
-// TEMPORAL - Recrear tabla perfecta
+/**
+ * @swagger
+ * /api/tests/fix-table:
+ *   post:
+ *     summary: Create a new table
+ * 
+ * */
 router.post('/fix-table', async (req, res) => {
     try {
         // Borra tabla vieja
