@@ -59,7 +59,7 @@ router.post("/", verifyToken, async (req, res) => {
         const [result] = await pool.query(
             `INSERT INTO tests 
             (id_usuario, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            VALUES (?, ?, ?, ?, ?, ?)`,
             [userId, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora]
         );
 
