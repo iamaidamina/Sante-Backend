@@ -60,7 +60,7 @@ router.post("/", verifyToken, async (req, res) => {
             `INSERT INTO tests 
             (id_usuario, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora)
             VALUES (?, ?, ?, ?, ?, ?)`,
-            [userId, nombre_medico, nombre_examen || null, descripcion || null, lugar || null, fecha_hora|| null]
+            [userId, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora]
         );
 
         res.status(201).json({
