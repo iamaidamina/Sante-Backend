@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 //----------------------Nuevo----------------
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -13,6 +14,22 @@ const testsRoutes = require("./routes/tests.routes");
 const catalogRoutes = require('./routes/catalog.routes');
 
 const app = express();
+
+// Si se despliega detras de un proxy (Render, Nginx, etc.), Express debe confiar
+// en el primer proxy para identificar correctamente la IP real del cliente.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    message: 'Demasiadas solicitudes. Intenta nuevamente en unos minutos.'
+  }
+});
 
 
 // --- Swagger Setup ---
@@ -57,6 +74,7 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use('/api', apiLimiter);
 
 // Documentation Page
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));

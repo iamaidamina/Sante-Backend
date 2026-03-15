@@ -4,6 +4,18 @@ const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const verifyToken = require('../middlewares/auth.middleware');
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutos
+  max: 5, // máximo 5 intentos
+  skipSuccessfulRequests: true,
+  message: {
+    message: "Demasiados intentos de login. Intenta nuevamente en unos minutos."
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 /**
  * @swagger
  * {
@@ -119,7 +131,7 @@ router.post('/register', async (req, res) => {
  *   }
  * }
  */
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -165,19 +177,40 @@ router.post('/login', async (req, res) => {
     const id_sesion = sesion.insertId;
 
     // --- MEJORA: INCLUIR ID_SESION EN JWT ---
-    const token = jwt.sign(
+    // --- ACCESS TOKEN (15 min) ---
+    const accessToken = jwt.sign(
       {
         id_usuario: user.id_usuario,
         id_sesion: id_sesion,
         rol: user.rol
       },
       process.env.JWT_SECRET,
-      { expiresIn: '8h' }
+      { expiresIn: '15m' }
     );
+
+    // --- REFRESH TOKEN (2 horas) ---
+    const refreshToken = jwt.sign(
+      {
+        id_usuario: user.id_usuario,
+        id_sesion: id_sesion
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+
+    // guardar refresh token en DB
+    await pool.query(
+      `UPDATE sesiones_usuario
+ SET refresh_token = ?
+ WHERE id_sesion = ?`,
+      [refreshToken, id_sesion]
+    );
+
 
     res.status(200).json({
       message: 'Login exitoso',
-      token,
+      access_token: accessToken,
+      refresh_token: refreshToken,
       user: {
         id_usuario: user.id_usuario,
         email: user.email,
@@ -190,6 +223,59 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor' });
   }
 });
+router.post('/refresh-token', async (req, res) => {
+
+  const { refresh_token } = req.body;
+
+  if (!refresh_token) {
+    return res.status(401).json({
+      message: "Refresh token requerido"
+    });
+  }
+
+  try {
+
+    const decoded = jwt.verify(refresh_token, process.env.JWT_SECRET);
+
+    const [rows] = await pool.query(
+      `SELECT * FROM sesiones_usuario
+ WHERE id_sesion = ?
+ AND refresh_token = ?
+ AND estado = 'activa'
+ AND hora_salida IS NULL`,
+      [decoded.id_sesion, refresh_token]
+    );
+
+    if (rows.length === 0) {
+      return res.status(403).json({
+        message: "Refresh token inválido"
+      });
+    }
+
+    const refreshToken = jwt.sign(
+      {
+        id_usuario: user.id_usuario,
+        id_sesion: id_sesion,
+        rol: user.rol
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '2h' }
+    );
+
+    res.json({
+      access_token: newAccessToken
+    });
+
+  } catch (error) {
+
+    return res.status(403).json({
+      message: "Refresh token expirado o inválido"
+    });
+
+  }
+
+});
+
 /**
  * @swagger
  * /api/users/logout:
@@ -208,10 +294,12 @@ router.post('/logout', verifyToken, async (req, res) => {
 
     await pool.query(
       `UPDATE sesiones_usuario
-   SET hora_salida = NOW(),
-       estado = 'cerrada',
-       tiempo_estadia_segundos = TIMESTAMPDIFF(SECOND, hora_ingreso, NOW())
-   WHERE id_sesion = ? AND hora_salida IS NULL`,
+ SET hora_salida = NOW(),
+     estado = 'cerrada',
+     refresh_token = NULL,
+     tiempo_estadia_segundos = TIMESTAMPDIFF(SECOND, hora_ingreso, NOW())
+ WHERE id_sesion = ? 
+ AND hora_salida IS NULL`,
       [id_sesion]
     );
     res.json({ message: "Sesión cerrada correctamente" });
