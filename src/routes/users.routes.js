@@ -9,7 +9,6 @@ const rateLimit = require('express-rate-limit');
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutos
   max: 5, // máximo 5 intentos
-  skipSuccessfulRequests: true,
   message: {
     message: "Demasiados intentos de login. Intenta nuevamente en unos minutos."
   },
@@ -52,21 +51,32 @@ const loginLimiter = rateLimit({
  */
 router.post('/register', async (req, res) => {
   try {
+
     const {
       nombres,
       apellidos,
       fecha_nacimiento,
       username,
       email,
-      password
+      password,
+      terms_accepted
     } = req.body;
+
+    // 🔒 Validar aceptación de términos
+    if (!terms_accepted) {
+      return res.status(400).json({
+        message: 'Debes aceptar los términos y condiciones'
+      });
+    }
 
     // Validación básica
     if (!nombres || !apellidos || !username || !email || !password) {
-      return res.status(400).json({ message: 'Faltan datos obligatorios' });
+      return res.status(400).json({
+        message: 'Faltan datos obligatorios'
+      });
     }
 
-    // Verificar si ya existe username o email
+    // Verificar usuario existente
     const [existingUser] = await pool.query(
       'SELECT id_usuario FROM usuarios WHERE email = ? OR username = ?',
       [email, username]
@@ -82,12 +92,24 @@ router.post('/register', async (req, res) => {
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);
 
+    // versión actual de términos
+    const terms_version = "1.0";
+
     // Insertar usuario
     const [result] = await pool.query(
       `INSERT INTO usuarios 
-       (nombres, apellidos, fecha_nacimiento, username, email, password_hash)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [nombres, apellidos, fecha_nacimiento, username, email, password_hash]
+      (nombres, apellidos, fecha_nacimiento, username, email, password_hash, terms_accepted, terms_version, terms_accepted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        nombres,
+        apellidos,
+        fecha_nacimiento,
+        username,
+        email,
+        password_hash,
+        terms_accepted,
+        terms_version
+      ]
     );
 
     res.status(201).json({
@@ -96,11 +118,15 @@ router.post('/register', async (req, res) => {
     });
 
   } catch (error) {
+
     console.error(error);
-    res.status(500).json({ message: 'Error en el servidor' });
+
+    res.status(500).json({
+      message: 'Error en el servidor'
+    });
+
   }
 });
-
 /**
  * @swagger
  * {

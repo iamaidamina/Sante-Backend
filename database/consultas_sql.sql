@@ -8,7 +8,16 @@ USE railway;
 #ADD COLUMN estado ENUM('activa','cerrada') DEFAULT 'activa';
 #ALTER TABLE sesiones_usuario 
 #MODIFY dispositivo VARCHAR(255);
-ALTER TABLE sesiones_usuario 
+#ALTER TABLE sesiones_usuario 
 #MODIFY dispositivo TEXT;
-ADD COLUMN refresh_token VARCHAR(500) NULL;
+#ADD COLUMN refresh_token VARCHAR(500) NULL;
 
+ALTER TABLE usuarios
+
+#ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE,
+#ADD COLUMN terms_accepted_at TIMESTAMP;
+
+
+ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE,
+ADD COLUMN terms_version VARCHAR(10),
+ADD COLUMN terms_accepted_at TIMESTAMP;

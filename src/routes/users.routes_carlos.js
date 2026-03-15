@@ -4,7 +4,7 @@ const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const verifyToken = require('../middlewares/auth.middleware');
-
+const { TERMS_VERSION } = require('../config/appConfig');
 /**
  * @swagger
  * /api/users/register:
@@ -14,28 +14,62 @@ const verifyToken = require('../middlewares/auth.middleware');
  */
 router.post('/register', async (req, res) => {
   try {
-    const { nombres, apellidos, fecha_nacimiento, username, email, password } = req.body;
 
+    const {
+      nombres,
+      apellidos,
+      fecha_nacimiento,
+      username,
+      email,
+      password,
+      terms_accepted
+    } = req.body;
+
+    // Validación básica
     if (!nombres || !apellidos || !username || !email || !password) {
-      return res.status(400).json({ message: 'Faltan datos obligatorios' });
+      return res.status(400).json({
+        message: 'Faltan datos obligatorios'
+      });
     }
 
+    // Validar términos
+    if (!terms_accepted) {
+      return res.status(400).json({
+        message: 'Debes aceptar los términos y condiciones'
+      });
+    }
+
+    // Verificar usuario existente
     const [existingUser] = await pool.query(
       'SELECT id_usuario FROM usuarios WHERE email = ? OR username = ?',
       [email, username]
     );
 
     if (existingUser.length > 0) {
-      return res.status(400).json({ message: 'El email o username ya está registrado' });
+      return res.status(400).json({
+        message: 'El email o username ya está registrado'
+      });
     }
 
+    // Encriptar contraseña
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);
 
+    // Insertar usuario
     const [result] = await pool.query(
-      `INSERT INTO usuarios (nombres, apellidos, fecha_nacimiento, username, email, password_hash)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [nombres, apellidos, fecha_nacimiento, username, email, password_hash]
+      `INSERT INTO usuarios
+      (nombres, apellidos, fecha_nacimiento, username, email, password_hash, terms_accepted, terms_version, terms_accepted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        nombres,
+        apellidos,
+        fecha_nacimiento,
+        username,
+        email,
+        password_hash,
+        terms_accepted,
+        TERMS_VERSION
+      ]
     );
 
     res.status(201).json({
@@ -44,8 +78,13 @@ router.post('/register', async (req, res) => {
     });
 
   } catch (error) {
+
     console.error("Error en register:", error);
-    res.status(500).json({ message: 'Error en el servidor' });
+
+    res.status(500).json({
+      message: 'Error en el servidor'
+    });
+
   }
 });
 
