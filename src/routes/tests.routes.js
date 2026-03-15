@@ -40,7 +40,7 @@ const pool = require("../db/connection");
  */
 router.post("/", verifyToken, async (req, res) => {
     try {
-        const userId = req.user.id_user;
+        const userId = req.user.id_usuario;
 
         const {
             nombre_medico,
@@ -58,7 +58,7 @@ router.post("/", verifyToken, async (req, res) => {
 
         const [result] = await pool.query(
             `INSERT INTO tests 
-            (id_user, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora)
+            (id_usuario, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora)
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [userId, nombre_medico, nombre_examen, descripcion, lugar, fecha_hora]
         );
@@ -92,7 +92,7 @@ router.post("/", verifyToken, async (req, res) => {
  */
 router.get("/", verifyToken, async (req, res) => {
     try {
-        const userId = req.user.id_user;
+        const userId = req.user.id_usuario;
         /*
         const [rows] = await pool.query(
             `SELECT c.*, e.nombre_especialidad
@@ -106,7 +106,7 @@ router.get("/", verifyToken, async (req, res) => {
         */
        
        const [rows] = await pool.query(
-            "SELECT * FROM tests WHERE id_user = ?",
+            "SELECT * FROM tests WHERE id_usuario = ?",
             [userId]
         );
 
@@ -160,7 +160,7 @@ router.get("/", verifyToken, async (req, res) => {
  */
 router.put("/:id", verifyToken, async (req, res) => {
     try {
-        const userId = req.user.id_user;
+        const userId = req.user.id_usuario;
         const { id } = req.params;
 
         const {
@@ -178,7 +178,7 @@ router.put("/:id", verifyToken, async (req, res) => {
                  descripcion = ?, 
                  lugar = ?, 
                  fecha_hora = ?
-             WHERE id_test = ? AND id_user = ?`,
+             WHERE id_test = ? AND id_usuario = ?`,
             [nombre_medico, nombre_examen, descripcion, lugar, fecha_hora, id, userId]
         );
 
@@ -214,7 +214,7 @@ router.put("/:id", verifyToken, async (req, res) => {
  */
 router.delete("/:id", verifyToken, async (req, res) => {
     try {
-        const userId = req.user.id_user;
+        const userId = req.user.id_usuario;
         const { id } = req.params;
         /*
         await pool.query(
@@ -229,7 +229,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
         const [result] = await pool.query(
             `DELETE FROM tests
              WHERE id_test= ?
-             AND id_user= ?`,
+             AND id_usuario = ?`,
             [id, userId]
         );
 
