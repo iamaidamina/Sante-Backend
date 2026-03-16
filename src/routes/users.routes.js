@@ -3,8 +3,21 @@ const router = express.Router();
 const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const verifyToken = require('../middlewares/auth.middleware');
+const verifyCaptcha = require('../middlewares/captcha.middleware');
 const rateLimit = require('express-rate-limit');
+const { TERMS_VERSION } = require('../../config/appConfig');
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: String(process.env.SMTP_SECURE).toLowerCase() === 'true',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+});
 
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutos
@@ -14,6 +27,13 @@ const loginLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false
+});
+const registerLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 10,
+  message: {
+    message: "Demasiados registros desde esta IP"
+  }
 });
 /**
  * @swagger
@@ -49,7 +69,7 @@ const loginLimiter = rateLimit({
  * }
  * }
  */
-router.post('/register', async (req, res) => {
+router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
   try {
 
     const {
@@ -93,7 +113,7 @@ router.post('/register', async (req, res) => {
     const password_hash = await bcrypt.hash(password, saltRounds);
 
     // versión actual de términos
-    const terms_version = "1.0";
+    const terms_version = TERMS_VERSION;
 
     // Insertar usuario
     const [result] = await pool.query(
@@ -112,8 +132,29 @@ router.post('/register', async (req, res) => {
       ]
     );
 
+    const emailToken = jwt.sign(
+      { email },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailToken}`;
+
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: email,
+      subject: 'Verifica tu cuenta - SANTE',
+      html: `
+        <h2>Bienvenido a SANTE</h2>
+        <p>Gracias por registrarte.</p>
+        <p>Haz click en el siguiente enlace para activar tu cuenta:</p>
+        <a href="${verifyLink}">Activar cuenta</a>
+        <p>Este enlace expirara en 24 horas.</p>
+      `
+    });
+
     res.status(201).json({
-      message: 'Usuario registrado correctamente',
+      message: 'Usuario registrado. Revisa tu correo para verificar tu cuenta.',
       id_usuario: result.insertId
     });
 
@@ -178,6 +219,11 @@ router.post('/login', loginLimiter, async (req, res) => {
       return res.status(400).json({ message: 'Credenciales inválidas' });
     }
 
+    if (!user.email_verified) {
+      return res.status(403).json({
+        message: "Debes verificar tu correo antes de iniciar sesión"
+      });
+    }
 
     // --- MEJORA: REGISTRO DE SESIÓN ---
     const ip = req.ip || req.headers['x-forwarded-for'];
@@ -265,10 +311,10 @@ router.post('/refresh-token', async (req, res) => {
 
     const [rows] = await pool.query(
       `SELECT * FROM sesiones_usuario
- WHERE id_sesion = ?
- AND refresh_token = ?
- AND estado = 'activa'
- AND hora_salida IS NULL`,
+       WHERE id_sesion = ?
+       AND refresh_token = ?
+       AND estado = 'activa'
+       AND hora_salida IS NULL`,
       [decoded.id_sesion, refresh_token]
     );
 
@@ -278,14 +324,13 @@ router.post('/refresh-token', async (req, res) => {
       });
     }
 
-    const refreshToken = jwt.sign(
+    const newAccessToken = jwt.sign(
       {
-        id_usuario: user.id_usuario,
-        id_sesion: id_sesion,
-        rol: user.rol
+        id_usuario: decoded.id_usuario,
+        id_sesion: decoded.id_sesion
       },
       process.env.JWT_SECRET,
-      { expiresIn: '2h' }
+      { expiresIn: "15m" }
     );
 
     res.json({
@@ -301,7 +346,34 @@ router.post('/refresh-token', async (req, res) => {
   }
 
 });
+router.get("/verify-email", async (req, res) => {
 
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).send("Token requerido");
+  }
+
+  try {
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    await pool.query(
+      `UPDATE usuarios
+       SET email_verified = TRUE
+       WHERE email = ?`,
+      [decoded.email]
+    );
+
+    res.send("Cuenta verificada correctamente");
+
+  } catch (error) {
+
+    res.status(400).send("Token inválido o expirado");
+
+  }
+
+});
 /**
  * @swagger
  * /api/users/logout:

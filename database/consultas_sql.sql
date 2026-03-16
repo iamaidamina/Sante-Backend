@@ -18,6 +18,9 @@ ALTER TABLE usuarios
 #ADD COLUMN terms_accepted_at TIMESTAMP;
 
 
-ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE,
-ADD COLUMN terms_version VARCHAR(10),
-ADD COLUMN terms_accepted_at TIMESTAMP;
+#ADD COLUMN terms_accepted BOOLEAN DEFAULT FALSE,
+#ADD COLUMN terms_version VARCHAR(10),
+#ADD COLUMN terms_accepted_at TIMESTAMP;
+
+
+ADD COLUMN email_verified BOOLEAN DEFAULT FALSE;
