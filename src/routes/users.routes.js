@@ -7,7 +7,6 @@ const nodemailer = require('nodemailer');
 const verifyToken = require('../middlewares/auth.middleware');
 const verifyCaptcha = require('../middlewares/captcha.middleware');
 const rateLimit = require('express-rate-limit');
-const { TERMS_VERSION } = require('../../config/appConfig');
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -112,14 +111,11 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);
 
-    // versión actual de términos
-    const terms_version = TERMS_VERSION;
-
     // Insertar usuario
     const [result] = await pool.query(
       `INSERT INTO usuarios 
-      (nombres, apellidos, fecha_nacimiento, username, email, password_hash, terms_accepted, terms_version, terms_accepted_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      (nombres, apellidos, fecha_nacimiento, username, email, password_hash, terms_accepted, terms_accepted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         nombres,
         apellidos,
@@ -127,8 +123,7 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
         username,
         email,
         password_hash,
-        terms_accepted,
-        terms_version
+        terms_accepted
       ]
     );
 
