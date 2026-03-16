@@ -3,11 +3,11 @@ const router = express.Router();
 const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const dns = require('dns').promises;
 const verifyToken = require('../middlewares/auth.middleware');
 const verifyCaptcha = require('../middlewares/captcha.middleware');
 const rateLimit = require('express-rate-limit');
+
+const RESEND_API_URL = 'https://api.resend.com/emails';
 
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutos
@@ -63,9 +63,8 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
   try {
 
     const missingEmailConfig = [
-      'SMTP_HOST',
-      'SMTP_USER',
-      'SMTP_PASS',
+      'RESEND_API_KEY',
+      'RESEND_FROM_EMAIL',
       'JWT_SECRET'
     ].filter((key) => !process.env[key]);
 
@@ -141,65 +140,46 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
     const frontendBaseUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
     const verifyLink = `${frontendBaseUrl}/verify-email?token=${emailToken}`;
 
-    const smtpHost = String(process.env.SMTP_HOST || '').trim();
-    const smtpUser = String(process.env.SMTP_USER || '').trim();
-    const smtpPass = String(process.env.SMTP_PASS || '').replace(/\s+/g, '');
-    let smtpConnectHost = smtpHost;
+    const emailHtml = `
+      <h2>Bienvenido a SANTE</h2>
+      <p>Gracias por registrarte.</p>
+      <p>Haz click en el siguiente enlace para activar tu cuenta:</p>
+      <a href="${verifyLink}">Activar cuenta</a>
+      <hr />
+      <h3>Resumen de terminos y condiciones aceptados</h3>
+      <p>Bienvenido a SANTE.</p>
+      <p>1. La informacion registrada debe ser veridica.</p>
+      <p>2. La plataforma no reemplaza atencion medica profesional.</p>
+      <p>3. Los datos medicos seran tratados conforme a la politica de privacidad.</p>
+      <p>4. El usuario es responsable del uso de su cuenta.</p>
+      <p>5. La plataforma puede enviar notificaciones relacionadas con medicamentos.</p>
+      <p>6. El usuario acepta recibir correos de verificacion.</p>
+      <p>7. El uso indebido puede resultar en suspension.</p>
+      <p>8. Estos terminos pueden actualizarse sin previo aviso.</p>
+      <p>Este enlace expirara en 24 horas.</p>
+    `;
 
-    try {
-      const ipv4List = await dns.resolve4(smtpHost);
-      if (ipv4List.length > 0) {
-        smtpConnectHost = ipv4List[0];
-      }
-    } catch (dnsError) {
-      console.warn('No se pudo resolver SMTP por IPv4, se usara host original:', dnsError.message);
-    }
-
-    const smtpFrom = process.env.SMTP_FROM
-      ? String(process.env.SMTP_FROM).trim()
-      : `SANTE <${smtpUser}>`;
-
-    const transporter = nodemailer.createTransport({
-      host: smtpConnectHost,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: String(process.env.SMTP_SECURE).toLowerCase() === 'true',
-      family: 4,
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-      dnsTimeout: 10000,
-      tls: {
-        servername: smtpHost
+    const resendResponse = await fetch(RESEND_API_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
       },
-      auth: {
-        user: smtpUser,
-        pass: smtpPass
-      }
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM_EMAIL,
+        to: [email],
+        subject: 'Verifica tu cuenta - SANTE',
+        html: emailHtml
+      })
     });
 
-    await transporter.sendMail({
-      from: smtpFrom,
-      to: email,
-      subject: 'Verifica tu cuenta - SANTE',
-      html: `
-        <h2>Bienvenido a SANTE</h2>
-        <p>Gracias por registrarte.</p>
-        <p>Haz click en el siguiente enlace para activar tu cuenta:</p>
-        <a href="${verifyLink}">Activar cuenta</a>
-        <hr />
-        <h3>Resumen de terminos y condiciones aceptados</h3>
-        <p>Bienvenido a SANTE.</p>
-        <p>1. La informacion registrada debe ser veridica.</p>
-        <p>2. La plataforma no reemplaza atencion medica profesional.</p>
-        <p>3. Los datos medicos seran tratados conforme a la politica de privacidad.</p>
-        <p>4. El usuario es responsable del uso de su cuenta.</p>
-        <p>5. La plataforma puede enviar notificaciones relacionadas con medicamentos.</p>
-        <p>6. El usuario acepta recibir correos de verificacion.</p>
-        <p>7. El uso indebido puede resultar en suspension.</p>
-        <p>8. Estos terminos pueden actualizarse sin previo aviso.</p>
-        <p>Este enlace expirara en 24 horas.</p>
-      `
-    });
+    if (!resendResponse.ok) {
+      const errorText = await resendResponse.text();
+      console.error('Resend error:', errorText);
+      return res.status(502).json({
+        message: 'No se pudo enviar el correo de verificacion'
+      });
+    }
 
     res.status(201).json({
       message: 'Usuario registrado. Revisa tu correo para verificar tu cuenta.',
