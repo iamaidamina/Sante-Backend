@@ -4,6 +4,7 @@ const pool = require('../db/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const dns = require('dns').promises;
 const verifyToken = require('../middlewares/auth.middleware');
 const verifyCaptcha = require('../middlewares/captcha.middleware');
 const rateLimit = require('express-rate-limit');
@@ -140,14 +141,26 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
     const frontendBaseUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
     const verifyLink = `${frontendBaseUrl}/verify-email?token=${emailToken}`;
 
+    const smtpHost = String(process.env.SMTP_HOST || '').trim();
     const smtpUser = String(process.env.SMTP_USER || '').trim();
     const smtpPass = String(process.env.SMTP_PASS || '').replace(/\s+/g, '');
+    let smtpConnectHost = smtpHost;
+
+    try {
+      const ipv4List = await dns.resolve4(smtpHost);
+      if (ipv4List.length > 0) {
+        smtpConnectHost = ipv4List[0];
+      }
+    } catch (dnsError) {
+      console.warn('No se pudo resolver SMTP por IPv4, se usara host original:', dnsError.message);
+    }
+
     const smtpFrom = process.env.SMTP_FROM
       ? String(process.env.SMTP_FROM).trim()
       : `SANTE <${smtpUser}>`;
 
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
+      host: smtpConnectHost,
       port: Number(process.env.SMTP_PORT || 587),
       secure: String(process.env.SMTP_SECURE).toLowerCase() === 'true',
       family: 4,
@@ -155,6 +168,9 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
       greetingTimeout: 10000,
       socketTimeout: 10000,
       dnsTimeout: 10000,
+      tls: {
+        servername: smtpHost
+      },
       auth: {
         user: smtpUser,
         pass: smtpPass
