@@ -140,6 +140,12 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
     const frontendBaseUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
     const verifyLink = `${frontendBaseUrl}/verify-email?token=${emailToken}`;
 
+    const smtpUser = String(process.env.SMTP_USER || '').trim();
+    const smtpPass = String(process.env.SMTP_PASS || '').replace(/\s+/g, '');
+    const smtpFrom = process.env.SMTP_FROM
+      ? String(process.env.SMTP_FROM).trim()
+      : `SANTE <${smtpUser}>`;
+
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT || 587),
@@ -150,13 +156,13 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
       socketTimeout: 10000,
       dnsTimeout: 10000,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
+        user: smtpUser,
+        pass: smtpPass
       }
     });
 
     await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: smtpFrom,
       to: email,
       subject: 'Verifica tu cuenta - SANTE',
       html: `
