@@ -149,6 +149,17 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
         <p>Gracias por registrarte.</p>
         <p>Haz click en el siguiente enlace para activar tu cuenta:</p>
         <a href="${verifyLink}">Activar cuenta</a>
+        <hr />
+        <h3>Resumen de terminos y condiciones aceptados</h3>
+        <p>Bienvenido a SANTE.</p>
+        <p>1. La informacion registrada debe ser veridica.</p>
+        <p>2. La plataforma no reemplaza atencion medica profesional.</p>
+        <p>3. Los datos medicos seran tratados conforme a la politica de privacidad.</p>
+        <p>4. El usuario es responsable del uso de su cuenta.</p>
+        <p>5. La plataforma puede enviar notificaciones relacionadas con medicamentos.</p>
+        <p>6. El usuario acepta recibir correos de verificacion.</p>
+        <p>7. El uso indebido puede resultar en suspension.</p>
+        <p>8. Estos terminos pueden actualizarse sin previo aviso.</p>
         <p>Este enlace expirara en 24 horas.</p>
       `
     });
