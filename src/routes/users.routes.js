@@ -8,16 +8,6 @@ const verifyToken = require('../middlewares/auth.middleware');
 const verifyCaptcha = require('../middlewares/captcha.middleware');
 const rateLimit = require('express-rate-limit');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: String(process.env.SMTP_SECURE).toLowerCase() === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
-
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutos
   max: 5, // máximo 5 intentos
@@ -70,6 +60,21 @@ const registerLimiter = rateLimit({
  */
 router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
   try {
+
+    const missingEmailConfig = [
+      'SMTP_HOST',
+      'SMTP_USER',
+      'SMTP_PASS',
+      'FRONTEND_URL',
+      'JWT_SECRET'
+    ].filter((key) => !process.env[key]);
+
+    if (missingEmailConfig.length > 0) {
+      console.error('Falta configuracion de correo/verificacion:', missingEmailConfig);
+      return res.status(500).json({
+        message: 'Falta configurar el servicio de correo en el servidor'
+      });
+    }
 
     const {
       nombres,
@@ -134,6 +139,16 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
     );
 
     const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailToken}`;
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: String(process.env.SMTP_SECURE).toLowerCase() === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
 
     await transporter.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
