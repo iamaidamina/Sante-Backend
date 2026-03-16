@@ -65,7 +65,6 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
       'SMTP_HOST',
       'SMTP_USER',
       'SMTP_PASS',
-      'FRONTEND_URL',
       'JWT_SECRET'
     ].filter((key) => !process.env[key]);
 
@@ -138,7 +137,8 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${emailToken}`;
+    const frontendBaseUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
+    const verifyLink = `${frontendBaseUrl}/verify-email?token=${emailToken}`;
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
