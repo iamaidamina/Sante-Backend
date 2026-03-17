@@ -257,7 +257,9 @@ router.post('/login', loginLimiter, async (req, res) => {
     }
 
     if (!user.email_verified) {
-      return res.status(403).json({
+      return res.status(200).json({
+        login_success: false,
+        requires_email_verification: true,
         message: "Debes verificar tu correo antes de iniciar sesión"
       });
     }
