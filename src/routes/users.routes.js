@@ -142,7 +142,7 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
 
     const frontendBaseUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
     const backendBaseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
-    const redirectUrl = `${frontendBaseUrl}/login?verified=1`;
+    const redirectUrl = `${frontendBaseUrl}/login`;
     const verifyLink = `${backendBaseUrl}/api/users/verify-email?token=${emailToken}&redirect=${encodeURIComponent(redirectUrl)}`;
 
     const emailHtml = `
@@ -386,8 +386,42 @@ router.post('/refresh-token', async (req, res) => {
 router.get("/verify-email", async (req, res) => {
 
   const { token, redirect } = req.query;
+  const frontendBaseUrl = process.env.FRONTEND_URL;
+
+  const getSafeRedirect = () => {
+    if (
+      typeof redirect === 'string' &&
+      frontendBaseUrl &&
+      redirect.startsWith(frontendBaseUrl)
+    ) {
+      return redirect;
+    }
+
+    if (frontendBaseUrl) {
+      return `${frontendBaseUrl.replace(/\/$/, '')}/login`;
+    }
+
+    return null;
+  };
+
+  const redirectWithStatus = (status) => {
+    const safeRedirect = getSafeRedirect();
+    if (!safeRedirect) {
+      return false;
+    }
+
+    const url = new URL(safeRedirect);
+    url.searchParams.set('email_verification', status);
+    url.searchParams.set('verified', status === 'success' ? '1' : '0');
+    res.redirect(302, url.toString());
+    return true;
+  };
 
   if (!token) {
+    if (redirectWithStatus('missing_token')) {
+      return;
+    }
+
     return res.status(400).send("Token requerido");
   }
 
@@ -410,21 +444,25 @@ router.get("/verify-email", async (req, res) => {
       );
 
     if (!updateResult || updateResult.affectedRows === 0) {
+      if (redirectWithStatus('not_found')) {
+        return;
+      }
+
       return res.status(404).send("Usuario no encontrado");
     }
 
-    const frontendBaseUrl = process.env.FRONTEND_URL;
-    if (
-      typeof redirect === 'string' &&
-      frontendBaseUrl &&
-      redirect.startsWith(frontendBaseUrl)
-    ) {
-      return res.redirect(302, redirect);
+    if (redirectWithStatus('success')) {
+      return;
     }
 
     res.send("Cuenta verificada correctamente");
 
   } catch (error) {
+
+    const status = error.name === 'TokenExpiredError' ? 'expired' : 'invalid_token';
+    if (redirectWithStatus(status)) {
+      return;
+    }
 
     res.status(400).send("Token inválido o expirado");
 
