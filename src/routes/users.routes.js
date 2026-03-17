@@ -132,13 +132,18 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
     );
 
     const emailToken = jwt.sign(
-      { email },
+      {
+        email,
+        id_usuario: result.insertId
+      },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     const frontendBaseUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
-    const verifyLink = `${frontendBaseUrl}/verify-email?token=${emailToken}`;
+    const backendBaseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+    const redirectUrl = `${frontendBaseUrl}/login?verified=1`;
+    const verifyLink = `${backendBaseUrl}/api/users/verify-email?token=${emailToken}&redirect=${encodeURIComponent(redirectUrl)}`;
 
     const emailHtml = `
       <h2>Bienvenido a SANTE</h2>
@@ -380,7 +385,7 @@ router.post('/refresh-token', async (req, res) => {
 });
 router.get("/verify-email", async (req, res) => {
 
-  const { token } = req.query;
+  const { token, redirect } = req.query;
 
   if (!token) {
     return res.status(400).send("Token requerido");
@@ -390,12 +395,32 @@ router.get("/verify-email", async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    await pool.query(
-      `UPDATE usuarios
-       SET email_verified = TRUE
-       WHERE email = ?`,
-      [decoded.email]
-    );
+    const [updateResult] = decoded.id_usuario
+      ? await pool.query(
+        `UPDATE usuarios
+         SET email_verified = TRUE
+         WHERE id_usuario = ?`,
+        [decoded.id_usuario]
+      )
+      : await pool.query(
+        `UPDATE usuarios
+         SET email_verified = TRUE
+         WHERE email = ?`,
+        [decoded.email]
+      );
+
+    if (!updateResult || updateResult.affectedRows === 0) {
+      return res.status(404).send("Usuario no encontrado");
+    }
+
+    const frontendBaseUrl = process.env.FRONTEND_URL;
+    if (
+      typeof redirect === 'string' &&
+      frontendBaseUrl &&
+      redirect.startsWith(frontendBaseUrl)
+    ) {
+      return res.redirect(302, redirect);
+    }
 
     res.send("Cuenta verificada correctamente");
 
