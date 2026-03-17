@@ -7,7 +7,7 @@ const verifyToken = require('../middlewares/auth.middleware');
 const verifyCaptcha = require('../middlewares/captcha.middleware');
 const rateLimit = require('express-rate-limit');
 
-const RESEND_API_URL = 'https://api.resend.com/emails';
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutos
@@ -63,8 +63,8 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
   try {
 
     const missingEmailConfig = [
-      'RESEND_API_KEY',
-      'RESEND_FROM_EMAIL',
+      'BREVO_API_KEY',
+      'BREVO_FROM_EMAIL',
       'JWT_SECRET'
     ].filter((key) => !process.env[key]);
 
@@ -159,23 +159,27 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
       <p>Este enlace expirara en 24 horas.</p>
     `;
 
-    const resendResponse = await fetch(RESEND_API_URL, {
+    const brevoResponse = await fetch(BREVO_API_URL, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'api-key': process.env.BREVO_API_KEY,
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: process.env.RESEND_FROM_EMAIL,
-        to: [email],
+        sender: {
+          name: process.env.BREVO_FROM_NAME || 'SANTE',
+          email: process.env.BREVO_FROM_EMAIL
+        },
+        to: [{ email }],
         subject: 'Verifica tu cuenta - SANTE',
-        html: emailHtml
+        htmlContent: emailHtml
       })
     });
 
-    if (!resendResponse.ok) {
-      const errorText = await resendResponse.text();
-      console.error('Resend error:', errorText);
+    if (!brevoResponse.ok) {
+      const errorText = await brevoResponse.text();
+      console.error('Brevo error:', errorText);
       return res.status(502).json({
         message: 'No se pudo enviar el correo de verificacion'
       });
