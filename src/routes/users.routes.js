@@ -484,7 +484,7 @@ router.get('/me', verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT nombres, apellidos, fecha_nacimiento, username, email,
-              email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
+              telefono_celular, email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
        FROM usuarios
        WHERE id_usuario = ?`,
       [req.user.id_usuario]
@@ -498,6 +498,103 @@ router.get('/me', verifyToken, async (req, res) => {
 
   } catch (error) {
     console.error('Error en GET /me:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+});
+
+router.put('/me', verifyToken, async (req, res) => {
+  try {
+    const allowedFields = [
+      'nombres',
+      'apellidos',
+      'username',
+      'fecha_nacimiento',
+      'telefono_celular'
+    ];
+
+    const requestFields = Object.keys(req.body || {});
+    const invalidFields = requestFields.filter((field) => !allowedFields.includes(field));
+
+    if (invalidFields.length > 0) {
+      return res.status(400).json({
+        message: 'Solo se permite actualizar nombres, apellidos, username, fecha_nacimiento y telefono_celular'
+      });
+    }
+
+    const updates = {};
+    for (const field of allowedFields) {
+      if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+        updates[field] = req.body[field];
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        message: 'No se enviaron campos para actualizar'
+      });
+    }
+
+    if (typeof updates.username === 'string') {
+      updates.username = updates.username.trim();
+      if (!updates.username) {
+        return res.status(400).json({ message: 'El username no puede estar vacío' });
+      }
+
+      const [existingUser] = await pool.query(
+        `SELECT id_usuario
+         FROM usuarios
+         WHERE username = ?
+         AND id_usuario <> ?`,
+        [updates.username, req.user.id_usuario]
+      );
+
+      if (existingUser.length > 0) {
+        return res.status(400).json({ message: 'El username ya está en uso' });
+      }
+    }
+
+    if (typeof updates.nombres === 'string') {
+      updates.nombres = updates.nombres.trim();
+    }
+
+    if (typeof updates.apellidos === 'string') {
+      updates.apellidos = updates.apellidos.trim();
+    }
+
+    if (typeof updates.telefono_celular === 'string') {
+      updates.telefono_celular = updates.telefono_celular.trim();
+    }
+
+    const setClause = Object.keys(updates)
+      .map((field) => `${field} = ?`)
+      .join(', ');
+
+    await pool.query(
+      `UPDATE usuarios
+       SET ${setClause}
+       WHERE id_usuario = ?`,
+      [...Object.values(updates), req.user.id_usuario]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT nombres, apellidos, fecha_nacimiento, username, email,
+              telefono_celular, email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
+       FROM usuarios
+       WHERE id_usuario = ?`,
+      [req.user.id_usuario]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.json({
+      message: 'Usuario actualizado correctamente',
+      user: rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error en PUT /me:', error);
     res.status(500).json({ message: 'Error en el servidor' });
   }
 });
