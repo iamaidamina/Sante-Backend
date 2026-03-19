@@ -480,6 +480,28 @@ router.get("/verify-email", async (req, res) => {
  *     tags: [Users]
  *     summary: Cierre de sesión con actualización de hora de salida
  */
+router.get('/me', verifyToken, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT nombres, apellidos, fecha_nacimiento, username, email,
+              rol, email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
+       FROM usuarios
+       WHERE id_usuario = ?`,
+      [req.user.id_usuario]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.json(rows[0]);
+
+  } catch (error) {
+    console.error('Error en GET /me:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
+  }
+});
+
 router.post('/logout', verifyToken, async (req, res) => {
   try {
     // MEJORA: Se extrae el id_sesion del token verificado, no del body
