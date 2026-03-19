@@ -484,7 +484,7 @@ router.get('/me', verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT nombres, apellidos, fecha_nacimiento, username, email,
-              rol, email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
+              email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
        FROM usuarios
        WHERE id_usuario = ?`,
       [req.user.id_usuario]
