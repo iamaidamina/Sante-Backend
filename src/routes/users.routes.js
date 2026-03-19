@@ -8,6 +8,7 @@ const verifyCaptcha = require('../middlewares/captcha.middleware');
 const rateLimit = require('express-rate-limit');
 
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+const TERMS_VERSION = process.env.TERMS_VERSION || 'v1.0';
 
 const loginLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutos
@@ -118,8 +119,8 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
     // Insertar usuario
     const [result] = await pool.query(
       `INSERT INTO usuarios 
-      (nombres, apellidos, fecha_nacimiento, username, email, password_hash, terms_accepted, terms_accepted_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+      (nombres, apellidos, fecha_nacimiento, username, email, password_hash, terms_accepted, terms_version, terms_accepted_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         nombres,
         apellidos,
@@ -127,7 +128,8 @@ router.post('/register', registerLimiter, verifyCaptcha, async (req, res) => {
         username,
         email,
         password_hash,
-        terms_accepted
+        terms_accepted,
+        TERMS_VERSION
       ]
     );
 
