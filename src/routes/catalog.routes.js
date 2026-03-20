@@ -21,7 +21,7 @@ router.get('/especialidades', verifyToken, async (req, res) => {
 
 /**
  * @swagger
- * /api/catalog/create-table:
+ * /api/catalog/replace-table:
  *   post:
  *     summary: Post all domiciliarios for logged user
  *     tags: [Domiciliarios]
