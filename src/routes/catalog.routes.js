@@ -10,12 +10,45 @@ const pool = require("../db/connection");
  *     summary: Get all especialidades for logged user
  *     tags: [Especialidades]
  * */
-router.get('/especialidades',verifyToken, async (req, res) => {
+router.get('/especialidades', verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM especialidades');
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/create-table", async (req, res) => {
+  try {
+    const createTableQuery = `
+            CREATE TABLE domiciliarios (
+    id_domiciliario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_domiciliario INT NOT NULL,
+    direccion_domiciliario VARCHAR(150),
+    tipo_documento VARCHAR(150),
+    numero_documento VARCHAR(250),
+    documento_identidad VARCHAR(250),
+    estado ENUM('activo','inactivo') DEFAULT 'activo',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+)
+        `;
+
+    const [result] = await pool.query(createTableQuery);
+
+    res.status(201).json({
+      message: "Table 'tests' created successfully",
+      table_name: 'tests'
+    });
+
+  } catch (error) {
+    if (error.code === 'ER_TABLE_EXISTS_ERROR') {
+      return res.status(409).json({
+        message: "Table 'tests' already exists"
+      });
+    }
+    console.error("Error creating table:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

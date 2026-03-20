@@ -45,17 +45,33 @@ CREATE TABLE entregas (
     id_entrega INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
     lugar_compra VARCHAR(150),
-    nombre_domiciliario VARCHAR(150),
+    id_domiciliario INT,
     fecha_llegada DATE,
-    id_medicamento INT,
+    nombre_producto VARCHAR(250),
+    orden_medica VARCHAR(250),
+    comentario VARCHAR(250),
     estado ENUM('aceptado','pendiente','entregado'),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
         ON DELETE CASCADE,
-    FOREIGN KEY (id_medicamento) REFERENCES medicamentos(id_medicamento)
+        FOREIGN KEY (id_domiciliario) REFERENCES domiciliarios(id_domiciliario)
         ON DELETE SET NULL
 );
+
+CREATE TABLE domiciliarios (
+    id_domiciliario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_domiciliario INT NOT NULL,
+    direccion_domiciliario VARCHAR(150),
+    tipo_documento VARCHAR(150),
+    numero_documento VARCHAR(250),
+    documento_identidad VARCHAR(250),
+    estado ENUM('activo','inactivo') DEFAULT 'activo',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);
+
+
+
 CREATE TABLE sesiones_usuario (
     id_sesion INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
