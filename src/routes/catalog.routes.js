@@ -19,5 +19,21 @@ router.get('/especialidades', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/catalog/domiciliarios:
+ *   get:
+ *     summary: Get all domiciliarios for logged user
+ *     tags: [Domiciliarios]
+ * */
+router.get('/domiciliarios', verifyToken, async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM domiciliarios');
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 module.exports = router;
