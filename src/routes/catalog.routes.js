@@ -28,42 +28,44 @@ router.get('/especialidades', verifyToken, async (req, res) => {
  * */
 
 
-router.post("/create-table", async (req, res) => {
-  try {
-    const createTableQuery = `
+router.post("/replace-table", async (req, res) => {
+    try {
+        // 1. DROP si existe
+        await pool.query("DROP TABLE IF EXISTS entregas");
+        
+        // 2. CREATE nueva estructura
+        const createTableQuery = `
             CREATE TABLE entregas (
-    id_entrega INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    lugar_compra VARCHAR(150),
-    id_domiciliario INT,
-    fecha_llegada DATE,
-    nombre_producto VARCHAR(250),
-    orden_medica VARCHAR(250),
-    comentario VARCHAR(250),
-    estado ENUM('aceptado','pendiente','entregado'),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                id_entrega INT AUTO_INCREMENT PRIMARY KEY,
+                id_usuario INT NOT NULL,
+                lugar_compra VARCHAR(150),
+                id_domiciliario INT,
+                fecha_llegada DATE,
+                nombre_producto VARCHAR(250),
+                orden_medica VARCHAR(250),
+                comentario VARCHAR(250),
+                estado ENUM('aceptado','pendiente','entregado'),
+                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-        ON DELETE CASCADE,
-        FOREIGN KEY (id_domiciliario) REFERENCES domiciliarios(id_domiciliario)
-        ON DELETE SET NULL
-)
+                FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+                FOREIGN KEY (id_domiciliario) REFERENCES domiciliarios(id_domiciliario) ON DELETE SET NULL
+            )
         `;
 
-    const [result] = await pool.query(createTableQuery);
+        await pool.query(createTableQuery);
 
-    res.status(201).json({
-      message: "Table 'domiciliarios' created successfully",  // ← Corregido
-      table_name: 'domiciliarios'                             // ← Corregido
-    });
+        res.status(201).json({
+            message: "Table 'entregas' replaced successfully (dropped old + created new)",
+            table_name: 'entregas'
+        });
 
-  } catch (error) {
-    console.error("Error creating table:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message  // ← Para debug
-    });
-  }
+    } catch (error) {
+        console.error("Error replacing table:", error);
+        res.status(500).json({ 
+            message: "Internal server error", 
+            error: error.message 
+        });
+    }
 });
 
 
