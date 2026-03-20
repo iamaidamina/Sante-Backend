@@ -11,6 +11,7 @@ const devicesRoutes = require('./routes/devices.routes');
 const medicationsRoutes = require("./routes/medications.routes");
 const appointmentsRoutes = require("./routes/appointments.routes");
 const testsRoutes = require("./routes/tests.routes");
+const deliveriesRoutes = require('./routes/deliveries.routes');
 const catalogRoutes = require('./routes/catalog.routes');
 
 const app = express();
@@ -58,6 +59,10 @@ const swaggerOptions = {
         description: "Test management"
       },
       {
+        name: "Deliveries",
+        description: "Delivery management"
+      },
+      {
         name: "Devices",
         description: "IoT device management"
       },
@@ -85,6 +90,7 @@ app.use('/api/devices', devicesRoutes);
 app.use("/api/medications", medicationsRoutes);
 app.use("/api/appointments", appointmentsRoutes);
 app.use("/api/tests", testsRoutes);
+app.use("/api/deliveries", deliveriesRoutes);
 app.use('/api/catalog', catalogRoutes);
 
 
