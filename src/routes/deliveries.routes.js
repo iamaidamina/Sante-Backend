@@ -27,6 +27,8 @@ const pool = require("../db/connection");
  *                 type: string
  *               comentario:
  *                 type: string
+ *              lugar_entrega:
+ *                 type: string
  *               fecha_llegada:
  *                 type: string
  *                 format: date-time
@@ -47,6 +49,7 @@ router.post("/", verifyToken, async (req, res) => {
             id_domiciliario,
             nombre_producto,
             comentario,
+            lugar_entrega,
             fecha_llegada
         } = req.body;
 
@@ -58,9 +61,9 @@ router.post("/", verifyToken, async (req, res) => {
 
         const [result] = await pool.query(
             `INSERT INTO entregas 
-            (id_usuario, lugar_compra, id_domiciliario, nombre_producto, comentario, fecha_llegada)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [userId, lugar_compra, id_domiciliario, nombre_producto, comentario, fecha_llegada]
+            (id_usuario, lugar_compra, id_domiciliario, nombre_producto, comentario,lugar_entrega, fecha_llegada)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [userId, lugar_compra, id_domiciliario, nombre_producto, comentario,lugar_entrega, fecha_llegada]
         );
 
         res.status(201).json({
@@ -137,6 +140,8 @@ router.get("/", verifyToken, async (req, res) => {
  *                 type: string
  *               comentario:
  *                 type: string
+ *               lugar_entrega:
+ *                 type: string
  *               fecha_llegada:
  *                 type: string
  *                 format: date-time
@@ -156,18 +161,20 @@ router.put("/:id", verifyToken, async (req, res) => {
             id_domiciliario,
             nombre_producto,
             comentario,
+            lugar_entrega,
             fecha_llegada
         } = req.body;
 
         await pool.query(
-            `UPDATE tests 
+            `UPDATE entregas
              SET lugar_compra = ?, 
                  id_domiciliario = ?, 
                  nombre_producto = ?, 
-                 comentario = ?, 
+                 comentario = ?,
+                 lugar_entrega= ?, 
                  fecha_llegada = ?
-             WHERE id_test = ? AND id_usuario = ?`,
-            [lugar_compra, id_domiciliario, nombre_producto, comentario, fecha_llegada, id, userId]
+             WHERE id_entrega= ? AND id_usuario = ?`,
+            [lugar_compra, id_domiciliario, nombre_producto, comentario,lugar_entrega, fecha_llegada, id, userId]
         );
 
         res.json({ message: "Delivery updated successfully" });
