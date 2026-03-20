@@ -29,36 +29,35 @@ router.get('/especialidades', verifyToken, async (req, res) => {
 
 
 router.post("/create-table", async (req, res) => {
-  try {
-    const createTableQuery = `
-            CREATE TABLE domiciliarios (
-    id_domiciliario INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_domiciliario VARCHAR(250),
-    direccion_domiciliario VARCHAR(150),
-    tipo_documento VARCHAR(150),
-    numero_documento VARCHAR(250),
-    documento_identidad VARCHAR(250),
-    estado ENUM('activo','inactivo') DEFAULT 'activo',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-)
+    try {
+        const createTableQuery = `
+            CREATE TABLE IF NOT EXISTS domiciliarios (  -- ← IF NOT EXISTS evita error
+                id_domiciliario INT AUTO_INCREMENT PRIMARY KEY,
+                nombre_domiciliario VARCHAR(250),
+                direccion_domiciliario VARCHAR(150),
+                tipo_documento VARCHAR(150),
+                numero_documento VARCHAR(250),
+                documento_identidad VARCHAR(250),
+                estado ENUM('activo','inactivo') DEFAULT 'activo',  -- ← COMA AQUÍ
+                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
         `;
 
-    const [result] = await pool.query(createTableQuery);
+        const [result] = await pool.query(createTableQuery);
 
-    res.status(201).json({
-      message: "Table 'tests' created successfully",
-      table_name: 'tests'
-    });
+        res.status(201).json({
+            message: "Table 'domiciliarios' created successfully",  // ← Corregido
+            table_name: 'domiciliarios'                             // ← Corregido
+        });
 
-  } catch (error) {
-    if (error.code === 'ER_TABLE_EXISTS_ERROR') {
-      return res.status(409).json({
-        message: "Table 'tests' already exists"
-      });
+    } catch (error) {
+        console.error("Error creating table:", error);
+        res.status(500).json({ 
+            message: "Internal server error", 
+            error: error.message  // ← Para debug
+        });
     }
-    console.error("Error creating table:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
 });
+
 
 module.exports = router;
