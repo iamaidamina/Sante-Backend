@@ -36,37 +36,4 @@ router.get('/domiciliarios', verifyToken, async (req, res) => {
 });
 
 
-/**
- * @swagger
- * /api/catalog/add-column:
- *   post:
- *     summary: Post all entregas for logged user
- *     tags: [Entregas]
- * */
-router.post("/add-column", async (req, res) => {  // ← Endpoint correcto
-    try {
-        const createTableQuery = `
-            ALTER TABLE entregas 
-            ADD COLUMN lugar_entrega VARCHAR(250)
-        `;
-
-        await pool.query(createTableQuery);
-
-        res.status(201).json({
-            message: "Column 'lugar_entrega' added to 'entregas' table",  // ← Mensaje correcto
-            table_name: 'entregas',
-            column_added: 'lugar_entrega'
-        });
-
-    } catch (error) {
-        console.error("Error adding column:", error);
-        res.status(500).json({ 
-            message: "Internal server error", 
-            error: error.message 
-        });
-    }
-});
-
-
-
 module.exports = router;
