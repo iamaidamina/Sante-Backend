@@ -59,15 +59,15 @@ CREATE TABLE entregas (
         ON DELETE SET NULL
 );
 
-CREATE TABLE domiciliarios (
-    id_domiciliario INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_domiciliario INT NOT NULL,
-    direccion_domiciliario VARCHAR(150),
-    tipo_documento VARCHAR(150),
-    numero_documento VARCHAR(250),
-    documento_identidad VARCHAR(250),
-    estado ENUM('activo','inactivo') DEFAULT 'activo',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE domiciliarios (  -- ← IF NOT EXISTS evita error
+                id_domiciliario INT AUTO_INCREMENT PRIMARY KEY,
+                nombre_domiciliario VARCHAR(250),
+                direccion_domiciliario VARCHAR(150),
+                tipo_documento VARCHAR(150),
+                numero_documento VARCHAR(250),
+                documento_identidad VARCHAR(250),
+                estado ENUM('activo','inactivo') DEFAULT 'activo',  -- ← COMA AQUÍ
+                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
