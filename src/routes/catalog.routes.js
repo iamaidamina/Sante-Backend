@@ -19,7 +19,13 @@ router.get('/especialidades',verifyToken, async (req, res) => {
   }
 });
 
-
+/**
+ * @swagger
+ * /api/catalog/create-table:
+ *   post:
+ *     summary: Post Create Table Test
+ *     tags: [Tests]
+ * */
 router.post("/create-table", async (req, res) => {
     try {
         const createTableQuery = `
