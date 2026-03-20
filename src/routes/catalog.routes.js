@@ -26,12 +26,14 @@ router.get('/especialidades', verifyToken, async (req, res) => {
  *     summary: Post all domiciliarios for logged user
  *     tags: [Domiciliarios]
  * */
+
+
 router.post("/create-table", async (req, res) => {
   try {
     const createTableQuery = `
             CREATE TABLE domiciliarios (
     id_domiciliario INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_domiciliario INT NOT NULL,
+    nombre_domiciliario VARCHAR(250),
     direccion_domiciliario VARCHAR(150),
     tipo_documento VARCHAR(150),
     numero_documento VARCHAR(250),
