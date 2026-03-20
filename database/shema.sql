@@ -42,22 +42,20 @@ CREATE TABLE citas (
         ON DELETE SET NULL
 );
 CREATE TABLE entregas (
-    id_entrega INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
-    lugar_compra VARCHAR(150),
-    id_domiciliario INT,
-    fecha_llegada DATE,
-    nombre_producto VARCHAR(250),
-    orden_medica VARCHAR(250),
-    comentario VARCHAR(250),
-    estado ENUM('aceptado','pendiente','entregado'),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                id_entrega INT AUTO_INCREMENT PRIMARY KEY,
+                id_usuario INT NOT NULL,
+                lugar_compra VARCHAR(150),
+                id_domiciliario INT,
+                fecha_llegada DATE,
+                nombre_producto VARCHAR(250),
+                orden_medica VARCHAR(250),
+                comentario VARCHAR(250),
+                estado ENUM('aceptado','pendiente','entregado'),
+                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-        ON DELETE CASCADE,
-        FOREIGN KEY (id_domiciliario) REFERENCES domiciliarios(id_domiciliario)
-        ON DELETE SET NULL
-);
+                FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+                FOREIGN KEY (id_domiciliario) REFERENCES domiciliarios(id_domiciliario) ON DELETE SET NULL
+            );
 
 CREATE TABLE domiciliarios (  -- ← IF NOT EXISTS evita error
                 id_domiciliario INT AUTO_INCREMENT PRIMARY KEY,
