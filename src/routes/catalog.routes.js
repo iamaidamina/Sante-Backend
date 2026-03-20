@@ -47,8 +47,8 @@ router.post("/replace-table", async (req, res) => {
     try {
 
         const createTableQuery = `
-            ALTER TABLE entregas 
-MODIFY COLUMN estado ENUM('aceptado','pendiente','entregado') DEFAULT 'pendiente';
+            ALTER TABLE entregas
+ADD COLUMN lugar_entrega VARCHAR(250);
         `;
 
         await pool.query(createTableQuery);
