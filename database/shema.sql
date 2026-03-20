@@ -89,9 +89,24 @@ CREATE TABLE registros_uv (
     FOREIGN KEY (id_dispositivo) REFERENCES dispositivos(id_dispositivo)
         ON DELETE CASCADE
 );
+CREATE TABLE tests (
+                id_test INT AUTO_INCREMENT PRIMARY KEY,
+                id_usuario INT NOT NULL,
+                nombre_medico VARCHAR(250) NOT NULL,
+                nombre_examen VARCHAR(250) NOT NULL,
+                descripcion VARCHAR(250),
+                lugar VARCHAR(250),
+                fecha_hora DATETIME,
+                ruta_orden_medica VARCHAR(250),
+                estado ENUM('activo','inactivo') DEFAULT 'activo',
+                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+                    ON DELETE CASCADE
+);
 CREATE INDEX idx_medicamentos_usuario ON medicamentos(id_usuario);
 CREATE INDEX idx_citas_usuario ON citas(id_usuario);
 CREATE INDEX idx_entregas_usuario ON entregas(id_usuario);
 CREATE INDEX idx_sesiones_usuario ON sesiones_usuario(id_usuario);
 CREATE INDEX idx_dispositivos_usuario ON dispositivos(id_usuario);
 CREATE INDEX idx_registros_uv_dispositivo ON registros_uv(id_dispositivo);
+CREATE INDEX idx_tests_usuario ON tests(id_usuario);
