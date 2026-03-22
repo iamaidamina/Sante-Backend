@@ -24,3 +24,8 @@ ALTER TABLE usuarios
 
 
 ADD COLUMN email_verified BOOLEAN DEFAULT FALSE;
+
+-- WhatsApp notifications via CallMeBot
+ALTER TABLE usuarios
+ADD COLUMN whatsapp_apikey VARCHAR(255) NULL,
+ADD COLUMN whatsapp_enabled BOOLEAN DEFAULT FALSE;
