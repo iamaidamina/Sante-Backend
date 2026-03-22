@@ -31,6 +31,7 @@ async function checkMedicationReminders() {
          AND telefono_celular IS NOT NULL`
     );
 
+    console.log(`[Scheduler] Usuarios con WhatsApp activo: ${users.length}`);
     for (const user of users) {
       const [medications] = await pool.query(
         `SELECT m.id_medicamento, m.nombre, m.descripcion, f.intervalo_horas
@@ -42,6 +43,7 @@ async function checkMedicationReminders() {
         [user.id_usuario]
       );
 
+      console.log(`[Scheduler] Usuario ${user.id_usuario} tiene ${medications.length} medicamentos activos`);
       for (const med of medications) {
         const now = Date.now();
         const lastSent = medicationLastSent.get(med.id_medicamento) || 0;
@@ -89,7 +91,9 @@ async function checkAppointmentReminders() {
          )`
     );
 
+    console.log(`[Scheduler] Citas encontradas: ${appointments.length}`);
     for (const appt of appointments) {
+      console.log(`[Scheduler] Cita #${appt.id_cita} - ${appt.nombre_medico} - minutos: ${appt.minutes_until} - tel: ${appt.telefono_celular}`);
       const is24h = appt.minutes_until >= 1435;
       const reminderKey = `${appt.id_cita}_${is24h ? '24h' : '1h'}`;
 
