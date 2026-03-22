@@ -25,10 +25,9 @@ function formatDate(dateObj) {
 async function checkMedicationReminders() {
   try {
     const [users] = await pool.query(
-      `SELECT id_usuario, telefono_celular, whatsapp_apikey
+      `SELECT id_usuario, telefono_celular
        FROM usuarios
        WHERE whatsapp_enabled = TRUE
-         AND whatsapp_apikey IS NOT NULL
          AND telefono_celular IS NOT NULL`
     );
 
@@ -54,7 +53,6 @@ async function checkMedicationReminders() {
 
           const sent = await sendWhatsAppMessage(
             user.telefono_celular,
-            user.whatsapp_apikey,
             message
           );
 
@@ -77,12 +75,11 @@ async function checkAppointmentReminders() {
     // Appointments ~1h from now (window: 55m to 65m)
     const [appointments] = await pool.query(
       `SELECT c.id_cita, c.nombre_medico, c.lugar, c.fecha_hora, c.tipo,
-              u.telefono_celular, u.whatsapp_apikey,
+              u.telefono_celular,
               TIMESTAMPDIFF(MINUTE, NOW(), c.fecha_hora) AS minutes_until
        FROM citas c
        JOIN usuarios u ON c.id_usuario = u.id_usuario
        WHERE u.whatsapp_enabled = TRUE
-         AND u.whatsapp_apikey IS NOT NULL
          AND u.telefono_celular IS NOT NULL
          AND c.estado = 'activo'
          AND (
@@ -113,7 +110,6 @@ async function checkAppointmentReminders() {
 
       const sent = await sendWhatsAppMessage(
         appt.telefono_celular,
-        appt.whatsapp_apikey,
         message
       );
 

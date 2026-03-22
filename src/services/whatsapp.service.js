@@ -1,16 +1,36 @@
-const CALLMEBOT_URL = 'https://api.callmebot.com/whatsapp.php';
+const WHATSAPP_API_URL = 'https://graph.facebook.com/v21.0';
 
-async function sendWhatsAppMessage(phone, apikey, message) {
+async function sendWhatsAppMessage(phone, message) {
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_ID;
+
+  if (!token || !phoneId) {
+    console.error('[WhatsApp] Faltan variables de entorno: WHATSAPP_TOKEN o WHATSAPP_PHONE_ID');
+    return false;
+  }
+
   try {
-    const cleanPhone = phone.replace(/[^\d+]/g, '');
-    const encodedMessage = encodeURIComponent(message);
-    const url = `${CALLMEBOT_URL}?phone=${cleanPhone}&text=${encodedMessage}&apikey=${apikey}`;
+    // Remove everything except digits (no + symbol for Meta API)
+    const cleanPhone = phone.replace(/\D/g, '');
 
-    const response = await fetch(url);
-    const body = await response.text();
+    const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: cleanPhone,
+        type: 'text',
+        text: { body: message },
+      }),
+    });
 
-    if (!response.ok || body.toLowerCase().includes('error')) {
-      console.error(`[WhatsApp] Error enviando a ${cleanPhone}:`, body);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(`[WhatsApp] Error enviando a ${cleanPhone}:`, JSON.stringify(data));
       return false;
     }
 
