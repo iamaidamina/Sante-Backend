@@ -13,8 +13,11 @@ async function sendWhatsAppMessage(phone, message) {
     // Remove everything except digits (no + symbol for Meta API)
     const cleanPhone = phone.replace(/\D/g, '');
 
-    // First try sending as free-form text
-    let response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
+    console.log(`[WhatsApp] Enviando a ${cleanPhone}: ${message}`);
+
+    // Use template message (required for Meta test number)
+    // When you add your own business number, change to 'text' type
+    const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -23,38 +26,15 @@ async function sendWhatsAppMessage(phone, message) {
       body: JSON.stringify({
         messaging_product: 'whatsapp',
         to: cleanPhone,
-        type: 'text',
-        text: { body: message },
+        type: 'template',
+        template: {
+          name: 'hello_world',
+          language: { code: 'en_US' },
+        },
       }),
     });
 
-    let data = await response.json();
-
-    // If text message fails (test number only supports templates),
-    // fall back to hello_world template with the message logged
-    if (!response.ok) {
-      console.log(`[WhatsApp] Texto libre no soportado, intentando con template...`);
-      console.log(`[WhatsApp] Mensaje original: ${message}`);
-
-      response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: cleanPhone,
-          type: 'template',
-          template: {
-            name: 'hello_world',
-            language: { code: 'en_US' },
-          },
-        }),
-      });
-
-      data = await response.json();
-    }
+    const data = await response.json();
 
     if (!response.ok) {
       console.error(`[WhatsApp] Error enviando a ${cleanPhone}:`, JSON.stringify(data));
