@@ -76,16 +76,16 @@ async function checkAppointmentReminders() {
     const [appointments] = await pool.query(
       `SELECT c.id_cita, c.nombre_medico, c.lugar, c.fecha_hora, c.tipo,
               u.telefono_celular,
-              TIMESTAMPDIFF(MINUTE, NOW(), c.fecha_hora) AS minutes_until
+              TIMESTAMPDIFF(MINUTE, CONVERT_TZ(NOW(), '+00:00', '-05:00'), c.fecha_hora) AS minutes_until
        FROM citas c
        JOIN usuarios u ON c.id_usuario = u.id_usuario
        WHERE u.whatsapp_enabled = TRUE
          AND u.telefono_celular IS NOT NULL
          AND c.estado = 'activo'
          AND (
-           TIMESTAMPDIFF(MINUTE, NOW(), c.fecha_hora) BETWEEN 1435 AND 1445
+           TIMESTAMPDIFF(MINUTE, CONVERT_TZ(NOW(), '+00:00', '-05:00'), c.fecha_hora) BETWEEN 1435 AND 1445
            OR
-           TIMESTAMPDIFF(MINUTE, NOW(), c.fecha_hora) BETWEEN 55 AND 65
+           TIMESTAMPDIFF(MINUTE, CONVERT_TZ(NOW(), '+00:00', '-05:00'), c.fecha_hora) BETWEEN 55 AND 65
          )`
     );
 
