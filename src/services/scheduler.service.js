@@ -2,9 +2,9 @@ const cron = require('node-cron');
 const pool = require('../db/connection');
 const { sendWhatsAppMessage, delay } = require('./whatsapp.service');
 
-// In-memory trackers
-const medicationLastSent = new Map(); // key: id_medicamento, value: timestamp
-const sentAppointmentReminders = new Set(); // "id_cita_24h" or "id_cita_1h"
+
+const medicationLastSent = new Map();
+const sentAppointmentReminders = new Set();
 
 function formatHour(dateObj) {
   return dateObj.toLocaleTimeString('es-CO', {
@@ -73,8 +73,7 @@ async function checkMedicationReminders() {
 
 async function checkAppointmentReminders() {
   try {
-    // Appointments ~24h from now (window: 23h55m to 24h05m)
-    // Appointments ~1h from now (window: 55m to 65m)
+    
     const [appointments] = await pool.query(
       `SELECT c.id_cita, c.nombre_medico, c.lugar, c.fecha_hora, c.tipo,
               u.telefono_celular,
@@ -124,8 +123,6 @@ async function checkAppointmentReminders() {
       await delay(1500);
     }
 
-    // Clean old entries (older than 25h) every cycle
-    // Simple approach: clear the set every 25 hours
     if (sentAppointmentReminders.size > 1000) {
       sentAppointmentReminders.clear();
     }
@@ -134,14 +131,12 @@ async function checkAppointmentReminders() {
   }
 }
 
-function initScheduler() {
-  // Medication reminders: every 30 minutes
+function initScheduler() {  
   cron.schedule('*/30 * * * *', () => {
     console.log('[Scheduler] Verificando recordatorios de medicamentos...');
     checkMedicationReminders();
   });
-
-  // Appointment reminders: every 5 minutes
+  
   cron.schedule('*/5 * * * *', () => {
     console.log('[Scheduler] Verificando recordatorios de citas...');
     checkAppointmentReminders();

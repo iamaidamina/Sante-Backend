@@ -10,12 +10,12 @@ async function sendWhatsAppMessage(phone, message) {
   }
 
   try {
-    // Remove everything except digits (no + symbol for Meta API)
+    // Remover todo excepto digitos (sin + para la API de Meta)
     const cleanPhone = phone.replace(/\D/g, '');
 
     console.log(`[WhatsApp] Enviando a ${cleanPhone}: ${message}`);
 
-    // Use custom template with variable for the reminder message
+    // Usar plantilla personalizada con variable para el mensaje
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
       method: 'POST',
       headers: {
