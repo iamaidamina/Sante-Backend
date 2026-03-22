@@ -15,8 +15,7 @@ async function sendWhatsAppMessage(phone, message) {
 
     console.log(`[WhatsApp] Enviando a ${cleanPhone}: ${message}`);
 
-    // Use template message (required for Meta test number)
-    // When you add your own business number, change to 'text' type
+    // Use custom template with variable for the reminder message
     const response = await fetch(`${WHATSAPP_API_URL}/${phoneId}/messages`, {
       method: 'POST',
       headers: {
@@ -28,8 +27,19 @@ async function sendWhatsAppMessage(phone, message) {
         to: cleanPhone,
         type: 'template',
         template: {
-          name: 'hello_world',
-          language: { code: 'en_US' },
+          name: 'sante_reminder',
+          language: { code: 'es' },
+          components: [
+            {
+              type: 'body',
+              parameters: [
+                {
+                  type: 'text',
+                  text: message,
+                },
+              ],
+            },
+          ],
         },
       }),
     });
