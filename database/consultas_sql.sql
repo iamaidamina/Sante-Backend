@@ -25,8 +25,8 @@ ALTER TABLE usuarios
 
 ADD COLUMN email_verified BOOLEAN DEFAULT FALSE;
 
--- WhatsApp notifications (Meta WhatsApp Cloud API)
--- If upgrading from CallMeBot version, run:
+-- Notificaciones WhatsApp (Meta WhatsApp Cloud API)
+-- Si se actualiza desde la version CallMeBot, ejecutar:
 -- ALTER TABLE usuarios DROP COLUMN whatsapp_apikey;
 ALTER TABLE usuarios
 ADD COLUMN whatsapp_enabled BOOLEAN DEFAULT FALSE;
