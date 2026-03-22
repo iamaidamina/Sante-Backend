@@ -486,7 +486,8 @@ router.get('/me', verifyToken, async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT nombres, apellidos, fecha_nacimiento, username, email,
-              telefono_celular, email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
+              telefono_celular, whatsapp_apikey, whatsapp_enabled,
+              email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
        FROM usuarios
        WHERE id_usuario = ?`,
       [req.user.id_usuario]
@@ -511,7 +512,9 @@ router.put('/me', verifyToken, async (req, res) => {
       'apellidos',
       'username',
       'fecha_nacimiento',
-      'telefono_celular'
+      'telefono_celular',
+      'whatsapp_apikey',
+      'whatsapp_enabled'
     ];
 
     const requestFields = Object.keys(req.body || {});
@@ -519,7 +522,7 @@ router.put('/me', verifyToken, async (req, res) => {
 
     if (invalidFields.length > 0) {
       return res.status(400).json({
-        message: 'Solo se permite actualizar nombres, apellidos, username, fecha_nacimiento y telefono_celular'
+        message: 'Solo se permite actualizar nombres, apellidos, username, fecha_nacimiento, telefono_celular, whatsapp_apikey y whatsapp_enabled'
       });
     }
 
@@ -567,6 +570,14 @@ router.put('/me', verifyToken, async (req, res) => {
       updates.telefono_celular = updates.telefono_celular.trim();
     }
 
+    if (typeof updates.whatsapp_apikey === 'string') {
+      updates.whatsapp_apikey = updates.whatsapp_apikey.trim();
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updates, 'whatsapp_enabled')) {
+      updates.whatsapp_enabled = Boolean(updates.whatsapp_enabled);
+    }
+
     const setClause = Object.keys(updates)
       .map((field) => `${field} = ?`)
       .join(', ');
@@ -580,7 +591,8 @@ router.put('/me', verifyToken, async (req, res) => {
 
     const [rows] = await pool.query(
       `SELECT nombres, apellidos, fecha_nacimiento, username, email,
-              telefono_celular, email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
+              telefono_celular, whatsapp_apikey, whatsapp_enabled,
+              email_verified, terms_accepted, terms_version, terms_accepted_at, fecha_creacion
        FROM usuarios
        WHERE id_usuario = ?`,
       [req.user.id_usuario]
