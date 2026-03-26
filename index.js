@@ -50,11 +50,11 @@ io.on("connection", (socket) => {
 
 });
 
-// iniciar scheduler de notificaciones WhatsApp
+// iniciar scheduler de notificaciones WhatsApp y WebSocket
 const { initScheduler } = require('./src/services/scheduler.service');
 
 // iniciar servidor
 server.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
-  initScheduler();
+  initScheduler(io);
 });

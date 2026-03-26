@@ -71,7 +71,7 @@ async function checkMedicationReminders() {
   }
 }
 
-async function checkAppointmentReminders() {
+async function checkAppointmentReminders(io) {
   try {
     
     const [appointments] = await pool.query(
@@ -111,10 +111,25 @@ async function checkAppointmentReminders() {
         message = `SANTE URGENTE: Tu cita con ${appt.nombre_medico} es en 1 hora (${hora}). Lugar: ${lugar}.${tipo}`;
       }
 
+      // Enviar notificación por WhatsApp
       const sent = await sendWhatsAppMessage(
         appt.telefono_celular,
         message
       );
+
+      // Enviar notificación por WebSocket si el usuario está conectado
+      if (io && appt.id_usuario) {
+        const room = `user_${appt.id_usuario}`;
+        io.to(room).emit('appointment_reminder', {
+          cita_id: appt.id_cita,
+          mensaje: message,
+          minutos: appt.minutes_until,
+          fecha: appt.fecha_hora,
+          medico: appt.nombre_medico,
+          lugar: appt.lugar,
+          tipo: appt.tipo
+        });
+      }
 
       if (sent) {
         sentAppointmentReminders.add(reminderKey);
@@ -131,7 +146,7 @@ async function checkAppointmentReminders() {
   }
 }
 
-function initScheduler() {  
+function initScheduler(io) {  
   cron.schedule('*/30 * * * *', () => {
     console.log('[Scheduler] Verificando recordatorios de medicamentos...');
     checkMedicationReminders();
@@ -139,10 +154,10 @@ function initScheduler() {
   
   cron.schedule('*/5 * * * *', () => {
     console.log('[Scheduler] Verificando recordatorios de citas...');
-    checkAppointmentReminders();
+    checkAppointmentReminders(io);
   });
 
-  console.log('[Scheduler] Recordatorios de WhatsApp inicializados');
+  console.log('[Scheduler] Recordatorios de WhatsApp y WebSocket inicializados');
 }
 
 module.exports = { initScheduler };
