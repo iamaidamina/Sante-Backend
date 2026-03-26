@@ -23,8 +23,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 1000,
+  windowMs: 15 * 60 * 10000, // 15 minutos
+  max: 10000,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
