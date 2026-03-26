@@ -23,8 +23,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 10000, // 15 minutos
-  max: 10000,
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -77,7 +77,19 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
 // Middlewares
-app.use(cors());
+const allowedOrigins = [
+  'https://sante-frontend-beryl.vercel.app',
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost:3000'
+].filter(Boolean);
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
 app.use('/api', apiLimiter);
 
