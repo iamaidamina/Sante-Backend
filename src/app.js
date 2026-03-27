@@ -13,6 +13,7 @@ const appointmentsRoutes = require("./routes/appointments.routes");
 const testsRoutes = require("./routes/tests.routes");
 const deliveriesRoutes = require('./routes/deliveries.routes');
 const catalogRoutes = require('./routes/catalog.routes');
+const geminiRoutes = require('./routes/gemini.routes');
 
 const app = express();
 
@@ -104,6 +105,7 @@ app.use("/api/appointments", appointmentsRoutes);
 app.use("/api/tests", testsRoutes);
 app.use("/api/deliveries", deliveriesRoutes);
 app.use('/api/catalog', catalogRoutes);
+app.use('/api/gemini', geminiRoutes);
 
 
 module.exports = app;
