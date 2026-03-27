@@ -35,10 +35,21 @@ router.post('/chat', verifyToken, async (req, res) => {
     if (!pregunta) {
       return res.status(400).json({ message: 'Falta la pregunta' });
     }
+
     const respuesta = await obtenerRespuestaGemini(pregunta);
     res.json({ success: true, respuesta });
+
   } catch (error) {
-    console.error('[Gemini Chat] Error:', error.message, error);
+    // Manejo de cuota excedida (429)
+    if (error.status === 429) {
+      return res.status(429).json({ 
+        message: 'Límite de consultas alcanzado. Reintenta en unos segundos.',
+        error: 'Rate Limit Exceeded'
+      });
+    }
+
+    // Logging de otros errores
+    console.error('[Gemini Chat] Error:', error.message);
     res.status(500).json({ message: 'Error al consultar Gemini', error: error.message });
   }
 });
