@@ -3,42 +3,40 @@ const router = express.Router();
 const verifyToken = require("../middlewares/auth.middleware");
 const pool = require("../db/connection");
 
-
 /**
  * @swagger
- * /api/deliveries:
- *   post:
- *     summary: Create a new delivery
- *     tags: [Deliveries]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               lugar_compra:
- *                 type: string
- *               id_domiciliario:
- *                 type: string
- *               nombre_producto:
- *                 type: string
- *               comentario:
- *                 type: string
- *              lugar_entrega:
- *                 type: string
- *               fecha_llegada:
- *                 type: string
- *                 format: date-time
- *     responses:
- *       201:
- *         description: Delivery created successfully
- *       400:
- *         description: Required fields missing
- *       500:
- *         description: Internal server error
+ * {
+ *   "/api/deliveries": {
+ *     "post": {
+ *       "tags": ["Deliveries"],
+ *       "summary": "Create a new delivery",
+ *       "security": [{ "bearerAuth": [] }],
+ *       "requestBody": {
+ *         "required": true,
+ *         "content": {
+ *           "application/json": {
+ *             "schema": {
+ *               "type": "object",
+ *               "properties": {
+ *                 "lugar_compra": { "type": "string" },
+ *                 "id_domiciliario": { "type": "string" },
+ *                 "nombre_producto": { "type": "string" },
+ *                 "comentario": { "type": "string" },
+ *                 "lugar_entrega": { "type": "string" },
+ *                 "fecha_llegada": { "type": "string", "format": "date-time" }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       },
+ *       "responses": {
+ *         "201": { "description": "Delivery created successfully" },
+ *         "400": { "description": "Required fields missing" },
+ *         "500": { "description": "Internal server error" }
+ *       }
+ *     }
+ *   }
+ * }
  */
 router.post("/", verifyToken, async (req, res) => {
     try {
