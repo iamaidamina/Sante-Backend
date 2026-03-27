@@ -6,13 +6,13 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function obtenerRespuestaGemini(pregunta, retries = 3, delayMs = 35000, modelo = 'gemini-2.0-flash') {
+async function obtenerRespuestaGemini(pregunta, retries = 3, delayMs = 35000, modelo = 'gemini-1.5-flash') {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY no esta configurada');
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: modelo });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
   // Prompt para respuestas responsables sobre medicamentos y salud
   const prompt = `Responde de forma clara, responsable y sin dar diagnósticos médicos. Si te preguntan por efectos secundarios, automedicación o sobredosis de medicamentos, responde siempre que consulten a un médico local y proporciona información general basada en fuentes confiables. Pregunta: ${pregunta}`;
@@ -34,12 +34,7 @@ async function obtenerRespuestaGemini(pregunta, retries = 3, delayMs = 35000, mo
         : delayMs;
       console.log(`[Gemini][${modelo}] Cuota excedida, esperando ${retryDelay/1000} segundos antes de reintentar...`);
       await sleep(retryDelay);
-      // Intentar con el modelo alternativo si es el primer fallo
-      if (modelo === 'gemini-2.0-flash' && retries === 3) {
-        console.log('[Gemini] Intentando con modelo gemini-1.5-flash...');
-        return obtenerRespuestaGemini(pregunta, retries - 1, delayMs * 2, 'gemini-1.5-flash');
-      }
-      return obtenerRespuestaGemini(pregunta, retries - 1, delayMs * 2, modelo);
+      return obtenerRespuestaGemini(pregunta, retries - 1, delayMs * 2, 'gemini-1.5-flash');
     }
     throw error;
   }
