@@ -51,7 +51,7 @@ CREATE TABLE entregas (
                 orden_medica VARCHAR(250),
                 lugar_entrega VARCHAR(250),
                 comentario VARCHAR(250),
-                estado ENUM('aceptado','pendiente','entregado'),
+                estado ENUM('aceptado','pendiente','entregado') DEFAULT 'pendiente',
                 fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
                 FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
