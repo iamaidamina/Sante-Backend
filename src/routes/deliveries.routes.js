@@ -58,7 +58,7 @@ router.post("/", verifyToken, async (req, res) => {
                 message: "Required fields missing"
             });
         }
-
+        //probando
         const [result] = await pool.query(
             `INSERT INTO entregas 
             (id_usuario, lugar_compra, id_domiciliario, nombre_producto, comentario,lugar_entrega, fecha_llegada)
