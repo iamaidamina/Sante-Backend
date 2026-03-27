@@ -9,10 +9,15 @@ const PORT = process.env.PORT || 3000;
 // crear servidor http
 const server = http.createServer(app);
 
-// inicializar socket.io
+
+// inicializar socket.io con CORS solo para el dominio de Vercel
 const io = new Server(server, {
   cors: {
-    origin: "*"
+    origin: [
+      "https://sante-frontend-beryl.vercel.app"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
