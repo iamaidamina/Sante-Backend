@@ -19,7 +19,7 @@ const pool = require("../db/connection");
  *               "type": "object",
  *               "properties": {
  *                 "lugar_compra": { "type": "string" },
- *                 "id_domiciliario": { "type": "string" },
+ *                 "id_domiciliario": { "type": "integer" },
  *                 "nombre_producto": { "type": "string" },
  *                 "comentario": { "type": "string" },
  *                 "lugar_entrega": { "type": "string" },
