@@ -23,7 +23,7 @@ const pool = require("../db/connection");
  *                 "nombre_producto": { "type": "string" },
  *                 "comentario": { "type": "string" },
  *                 "lugar_entrega": { "type": "string" },
- *                 "fecha_llegada": { "type": "string", "format": "date-time" }
+ *                 "fecha_llegada": { "type": "string", "format": "date" }
  *               }
  *             }
  *           }
