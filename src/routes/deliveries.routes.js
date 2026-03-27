@@ -66,7 +66,7 @@ router.post("/", verifyToken, async (req, res) => {
 
         res.status(201).json({
             message: "Entrega created successfully",
-            test_id: result.insertId
+            id_entrega: result.insertId
         });
 
     } catch (error) {
