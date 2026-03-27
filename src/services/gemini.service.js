@@ -12,7 +12,7 @@ async function obtenerRespuestaGemini(pregunta, retries = 3, delayMs = 35000, mo
     throw new Error('GEMINI_API_KEY no esta configurada');
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
   // Prompt para respuestas responsables sobre medicamentos y salud
   const prompt = `Responde de forma clara, responsable y sin dar diagnósticos médicos. Si te preguntan por efectos secundarios, automedicación o sobredosis de medicamentos, responde siempre que consulten a un médico local y proporciona información general basada en fuentes confiables. Pregunta: ${pregunta}`;
