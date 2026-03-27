@@ -151,6 +151,7 @@ router.post('/uv', async (req, res) => {
         valor_uv,
         nivel_riesgo
       });
+      console.log(`Alerta UV enviada a user_${id_usuario} (valor_uv: ${valor_uv}, nivel: ${nivel_riesgo})`);
     }
 
     if (io && (nivel_riesgo === "alto" || nivel_riesgo === "muy_alto")) {
