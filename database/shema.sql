@@ -49,6 +49,7 @@ CREATE TABLE entregas (
                 fecha_llegada DATE,
                 nombre_producto VARCHAR(250),
                 orden_medica VARCHAR(250),
+                lugar_entrega VARCHAR(250),
                 comentario VARCHAR(250),
                 estado ENUM('aceptado','pendiente','entregado'),
                 fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
