@@ -38,6 +38,7 @@ router.post('/chat', verifyToken, async (req, res) => {
     const respuesta = await obtenerRespuestaGemini(pregunta);
     res.json({ success: true, respuesta });
   } catch (error) {
+    console.error('[Gemini Chat] Error:', error.message, error);
     res.status(500).json({ message: 'Error al consultar Gemini', error: error.message });
   }
 });
