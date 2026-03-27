@@ -1,7 +1,12 @@
 
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-async function obtenerRespuestaGemini(pregunta) {
+
+async function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function obtenerRespuestaGemini(pregunta, retries = 3, delayMs = 35000) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY no esta configurada');
@@ -12,11 +17,24 @@ async function obtenerRespuestaGemini(pregunta) {
   // Prompt para respuestas responsables sobre medicamentos y salud
   const prompt = `Responde de forma clara, responsable y sin dar diagnósticos médicos. Si te preguntan por efectos secundarios, automedicación o sobredosis de medicamentos, responde siempre que consulten a un médico local y proporciona información general basada en fuentes confiables. Pregunta: ${pregunta}`;
 
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  const text = response.text().trim();
-  console.log('[Gemini] Respuesta:', text);
-  return text;
+  try {
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text().trim();
+    console.log('[Gemini] Respuesta:', text);
+    return text;
+  } catch (error) {
+    // Manejo de error 429 Too Many Requests
+    if (error.status === 429 && retries > 0) {
+      const retryDelay = (error.errorDetails && error.errorDetails[2] && error.errorDetails[2].retryDelay)
+        ? parseInt(error.errorDetails[2].retryDelay.replace('s','')) * 1000
+        : delayMs;
+      console.log(`[Gemini] Cuota excedida, esperando ${retryDelay/1000} segundos antes de reintentar...`);
+      await sleep(retryDelay);
+      return obtenerRespuestaGemini(pregunta, retries - 1, delayMs * 2);
+    }
+    throw error;
+  }
 }
 
 module.exports = { obtenerRespuestaGemini };
