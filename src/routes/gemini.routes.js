@@ -6,69 +6,47 @@ const { analizarFormula } = require('../services/gemini.service');
 const router = express.Router();
 
 // Configurar multer para almacenar en memoria (no en disco)
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB maximo
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Tipo de archivo no permitido. Solo imagenes (JPG, PNG, WebP, GIF) y PDF.'));
-    }
-  },
-});
+
+const express = require('express');
+const verifyToken = require('../middlewares/auth.middleware');
+const { obtenerRespuestaGemini } = require('../services/gemini.service');
+
+const router = express.Router();
 
 /**
  * @swagger
- * /api/gemini/analizar-formula:
+ * /api/gemini/chat:
  *   post:
- *     summary: Analiza una foto de formula medica con IA
+ *     summary: Consulta a Gemini sobre medicamentos o salud
  *     tags: [Gemini]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               formula:
+ *               pregunta:
  *                 type: string
- *                 format: binary
  *     responses:
  *       200:
- *         description: Formula analizada exitosamente
+ *         description: Respuesta generada por Gemini
  *       400:
- *         description: No se pudo analizar la formula
+ *         description: Pregunta faltante
  */
-router.post('/analizar-formula', verifyToken, upload.single('formula'), async (req, res) => {
+router.post('/chat', verifyToken, async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No se recibio ninguna imagen' });
+    const { pregunta } = req.body;
+    if (!pregunta) {
+      return res.status(400).json({ message: 'Falta la pregunta' });
     }
-
-    console.log(`[Gemini] Analizando formula - tipo: ${req.file.mimetype}, tamano: ${req.file.size} bytes`);
-
-    const resultado = await analizarFormula(req.file.buffer, req.file.mimetype);
-
-    res.json({
-      success: true,
-      data: resultado,
-    });
+    const respuesta = await obtenerRespuestaGemini(pregunta);
+    res.json({ success: true, respuesta });
   } catch (error) {
-    console.error('[Gemini] Error analizando formula:', error.message);
-    res.status(400).json({
-      success: false,
-      message: error.message || 'No se pudo analizar la formula medica',
-    });
+    res.status(500).json({ message: 'Error al consultar Gemini', error: error.message });
   }
 });
-
-// Endpoint de prueba sin autenticacion (ELIMINAR en produccion)
-router.post('/test-formula', upload.single('formula'), async (req, res) => {
-  try {
-    if (!req.file) {
       return res.status(400).json({ message: 'No se recibio ninguna imagen' });
     }
 
