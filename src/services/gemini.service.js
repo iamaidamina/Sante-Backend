@@ -11,17 +11,23 @@ async function obtenerRespuestaGemini(pregunta, reintentos = 2) {
     throw new Error('GEMINI_API_KEY no esta configurada');
   }
 
+  // Forzar la versión estable de la API (v1)
   const genAI = new GoogleGenerativeAI(apiKey);
-  // Opción 1: nombre técnico completo
   let model;
-  let modeloUsado = 'models/gemini-1.5-flash';
+  let modeloUsado = 'gemini-1.5-flash';
   try {
-    model = genAI.getGenerativeModel({ model: modeloUsado });
+    model = genAI.getGenerativeModel(
+      { model: modeloUsado },
+      { apiVersion: 'v1' }
+    );
   } catch (e) {
     // fallback inmediato si la SDK lanza error al crear el modelo
     console.warn('[Gemini Service] Fallback a gemini-pro por error al instanciar modelo:', e.message);
     modeloUsado = 'gemini-pro';
-    model = genAI.getGenerativeModel({ model: modeloUsado });
+    model = genAI.getGenerativeModel(
+      { model: modeloUsado },
+      { apiVersion: 'v1' }
+    );
   }
 
   // Prompt responsable
@@ -41,7 +47,10 @@ async function obtenerRespuestaGemini(pregunta, reintentos = 2) {
     // Si el error es 404, intentamos fallback a gemini-pro
     if (error.status === 404 && modeloUsado !== 'gemini-pro') {
       console.warn('[Gemini Service] 404: Fallback a gemini-pro');
-      const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-pro' });
+      const fallbackModel = genAI.getGenerativeModel(
+        { model: 'gemini-pro' },
+        { apiVersion: 'v1' }
+      );
       try {
         const result = await fallbackModel.generateContent(prompt);
         const response = await result.response;
