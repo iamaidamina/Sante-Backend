@@ -28,7 +28,7 @@ async function sendWhatsAppMessage(phone, message) {
         type: 'template',
         template: {
           name: 'sante_reminder',
-          language: { code: 'es' },
+          language: { code: 'es_CO' },
           components: [
             {
               type: 'body',
