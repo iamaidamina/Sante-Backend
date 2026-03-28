@@ -5,10 +5,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function obtenerRespuestaGemini(pregunta) {
     try {
-        // 2. Selección del modelo (Usamos el nombre exacto de tu ejemplo)
+        // 2. Selección del modelo 
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        // 3. System Instruction (Adaptado a tu App de Salud 'Sante')
+        // 3. System Instruction 
         const promptEstructurado = `
             Actúa como un asistente médico virtual experto llamado SANTE.
             Proporciona información clara y profesional sobre salud y medicamentos.
@@ -21,15 +21,15 @@ async function obtenerRespuestaGemini(pregunta) {
             Pregunta del usuario: ${pregunta}
         `;
 
-        // 4. Ejecución (Igual a tu ejemplo)
+        // 4. Ejecución 
         const result = await model.generateContent(promptEstructurado);
         const response = await result.response;
         
-        // Devolvemos el texto plano (o podrías parsear JSON si lo necesitas como en tu ejemplo)
+        // Devolvemos el texto plano 
         return response.text();
 
     } catch (error) {
-        // Manejo de errores basado en lo que vimos en los logs
+        
         if (error.status === 429) {
             console.error("Error 429: Cuota excedida en el Plan Gratuito.");
             throw new Error("CUOTA_EXCEDIDA");

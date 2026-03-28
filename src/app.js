@@ -17,8 +17,6 @@ const geminiRoutes = require('./routes/gemini.routes');
 
 const app = express();
 
-// Si se despliega detras de un proxy (Render, Nginx, etc.), Express debe confiar
-// en el primer proxy para identificar correctamente la IP real del cliente.
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }

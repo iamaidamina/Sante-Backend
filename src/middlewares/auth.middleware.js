@@ -18,9 +18,7 @@ const verifyToken = async (req, res, next) => {
     // 3. Verificar el token usando la clave secreta
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    /* 4. Inyectamos TODO el contenido decodificado en req.user.
-      Esto asegura que req.user.id_usuario, req.user.id_sesion y req.user.rol 
-      estén disponibles en todas las rutas que usen este middleware.
+    /* 4. Inyectamos TODO el contenido decodificado en req.user.     .
     */
     req.user = decoded;
     
@@ -44,10 +42,10 @@ const verifyToken = async (req, res, next) => {
       });
     }
 
-    next(); // Continuar a la ruta solicitada
+    next(); 
 
   } catch (error) {
-    // 5. Diferenciar entre token expirado y token inválido (útil para el frontend)
+    // 5. Diferenciar entre token expirado y token inválido 
     if (error.name === 'TokenExpiredError') {
       return res.status(403).json({ 
         message: 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.',
