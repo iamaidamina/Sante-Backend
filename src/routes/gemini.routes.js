@@ -6,9 +6,6 @@ const router = express.Router();
 
 /**
  * @swagger
-
-/**
- * @swagger
  * /api/gemini/chat:
  *   post:
  *     summary: Consulta a Gemini sobre medicamentos o salud
@@ -40,15 +37,13 @@ router.post('/chat', verifyToken, async (req, res) => {
     res.json({ success: true, respuesta });
 
   } catch (error) {
-    // Manejo de cuota excedida (429)
-    if (error.status === 429) {
-      return res.status(429).json({ 
+    if (error.message === 'CUOTA_EXCEDIDA') {
+      return res.status(429).json({
         message: 'Límite de consultas alcanzado. Reintenta en unos segundos.',
         error: 'Rate Limit Exceeded'
       });
     }
 
-    // Logging de otros errores
     console.error('[Gemini Chat] Error:', error.message);
     res.status(500).json({ message: 'Error al consultar Gemini', error: error.message });
   }
