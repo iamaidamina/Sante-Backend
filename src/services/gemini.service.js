@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 async function obtenerRespuestaGemini(pregunta) {
     try {
         // 2. Selección del modelo 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
         // 3. System Instruction 
         const promptEstructurado = `
