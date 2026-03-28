@@ -7,7 +7,9 @@ async function obtenerRespuestaGemini(pregunta) {
   try {
     // IMPORTANTE: Usamos 'gemini-1.5-flash' sin prefijos raros.
     // Esta es la versión que mejor maneja la cuota gratuita actualmente.
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Prueba con el modelo más reciente disponible
+    // Puedes cambiar a "gemini-1.5-flash-latest" o "gemini-1.5-flash-002" si es necesario
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const result = await model.generateContent(pregunta);
     const response = await result.response;
